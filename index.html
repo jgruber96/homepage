@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>darkstarinc — ~/home</title>
+<meta name="description" content="Jeff Gruber — builder, tinkerer, photographer. Projects, photos and ways to get in touch.">
+<meta property="og:title" content="Jeff Gruber — ~/home">
+<meta property="og:description" content="Projects, photos and ways to get in touch.">
+<meta name="theme-color" content="#1b1713">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='6' fill='%231b1713'/><text x='5' y='22' font-family='monospace' font-size='16' font-weight='700' fill='%23ffb454'>&gt;_</text></svg>">
+<script>/* set light/dark before paint to avoid a flash: saved choice wins, otherwise follow the system setting */
+(function(){let m=null;try{m=localStorage.getItem("mode")}catch(e){}
+  if(!m)m=matchMedia("(prefers-color-scheme: light)").matches?"light":"dark";
+  if(m==="light")document.documentElement.dataset.mode="light"})();</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;600;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<canvas id="rain" aria-hidden="true"></canvas>
+<div id="boot" aria-hidden="true"></div>
+
+<div class="wrap">
+  <header class="bar">
+    <div class="seg"><span><span class="dot"></span><b>jgruber@home</b></span><span id="clock">--:--:--</span></div>
+    <div class="seg">
+      <nav class="seg"><a href="#projects">projects</a><a href="#about">about</a><a href="#shell">shell</a><a href="#contact">contact</a></nav>
+      <button id="mode" type="button" aria-label="Toggle light and dark theme"><span class="d">dark</span><span class="l">light</span></button>
+    </div>
+  </header>
+
+  <section class="hero">
+    <div>
+      <div class="greet"><span class="k">$</span> whoami</div>
+      <h1><span class="glitch" data-t="jeff">jeff</span><span class="u">_</span></h1>
+      <!-- EDIT: your one-line intro -->
+      <p class="lede">I build <span>small, useful things</span> for the web, self-host more than I should, and take a lot of photos.</p>
+      <div class="cta">
+        <a class="btn p" href="#projects">ls ./projects →</a>
+        <a class="btn" href="https://github.com/jgruber96" target="_blank" rel="noopener">github ↗</a>
+        <a class="btn" href="https://www.flickr.com/photos/jgruber15/" target="_blank" rel="noopener">flickr ↗</a>
+      </div>
+    </div>
+    <div class="sys" aria-label="quick stats">
+      <div><span>lines of code</span><i id="loc">0</i></div><div class="meter" id="locm" style="--w:0%"></div>
+      <div><span>something random</span><i id="rnd">—</i></div><div class="meter" id="rndm" style="--w:50%"></div>
+      <div><span>bugs</span><i>0 (allegedly)</i></div><div class="meter" style="--w:4%"></div>
+      <div><span>year.progress</span><i id="yearp">—</i></div><div class="meter" id="ym"></div>
+      <div><span>local time</span><i id="tz">US/Pacific</i></div>
+    </div>
+  </section>
+
+  <div class="term" id="shell">
+    <div class="term-h"><span class="l"></span><span class="l"></span><span class="l"></span><span style="margin-left:8px">guest@jgruber: ~</span><span class="t">type <b>help</b></span></div>
+    <div id="out"><span class="fg">Welcome, guest.</span> Type <span class="ok">help</span> to look around, or click a command below.
+</div>
+    <div class="line">
+      <label class="ps1" for="cmd"><span class="u">guest@jgruber</span><span class="p">:~</span>$</label>
+      <input id="cmd" autocomplete="off" spellcheck="false" placeholder="help">
+    </div>
+    <div class="chips"><button>help</button><button>about</button><button>projects</button><button>contact</button><button>neofetch</button><button>sudo</button></div>
+  </div>
+
+  <div class="sh" id="projects"><h2><span class="k">$</span>ls ~/projects</h2><p>// things I've shipped</p></div>
+  <section class="grid">
+    <a class="dir" href="https://github.com/jgruber96/chore-calendar" target="_blank" rel="noopener">
+      <div class="path"><span>drwxr-xr-x ~/projects/<b>chore-calendar</b></span><span>repo</span></div>
+      <h3>chore-calendar</h3>
+      <p>A self-hosted calendar for household chores: who's doing what, and when.</p>
+      <div class="meta"><span class="tag">self-hosted</span><span class="tag">web app</span><span class="go">→</span></div>
+    </a>
+    <a class="dir" href="https://www.flickr.com/photos/jgruber15/" target="_blank" rel="noopener">
+      <div class="path"><span>drwxr-xr-x ~/projects/<b>photos</b></span><span>flickr</span></div>
+      <h3>photo log</h3>
+      <p>My most viewed and most liked shots. Mostly whatever caught my eye that day.</p>
+      <div class="meta"><span class="tag">photography</span><span class="go">→</span></div>
+    </a>
+    <a class="dir" href="#shell">
+      <div class="path"><span>-rwxr-xr-x ~/projects/<b>homepage</b></span><span>you are here</span></div>
+      <h3>this site</h3>
+      <p>Hand-written HTML, CSS and JS. No framework, no tracking. Go break the shell above.</p>
+      <div class="meta"><span class="tag">html</span><span class="tag">css</span><span class="tag">vanilla js</span><span class="go">→</span></div>
+    </a>
+  </section>
+
+  <section class="row2">
+    <div class="panel" id="about">
+      <h3>~/about.md <span>· cat</span></h3>
+      <!-- EDIT: your bio -->
+      <p>Hey, I'm <b>jeff</b>. I like turning everyday annoyances into tiny tools: a self-hosted calendar for household chores, a page for my favourite photos, and this site.</p>
+      <p>When I'm not in a terminal I'm usually behind a camera.</p>
+      <dl class="kv">
+        <div><dt>role</dt><dd>builder · tinkerer</dd></div>
+        <div><dt>stack</dt><dd>html/css · javascript · self-hosting · git</dd></div>
+        <div><dt>offline</dt><dd>photography</dd></div>
+        <div><dt>status</dt><dd style="color:var(--acc2)">● building things</dd></div>
+      </dl>
+    </div>
+    <div class="panel" id="contact">
+      <h3>~/contact <span>· ping jgruber</span></h3>
+      <div class="links">
+        <a href="https://github.com/jgruber96" target="_blank" rel="noopener"><span class="ic">gh</span>github<small>@jgruber96 ↗</small></a>
+        <a href="https://www.flickr.com/photos/jgruber15/" target="_blank" rel="noopener"><span class="ic">fl</span>flickr<small>@jgruber15 ↗</small></a>
+        <!-- EDIT: add email / socials, e.g.
+        <a href="mailto:you@example.com"><span class="ic">@</span>email<small>you@example.com</small></a> -->
+      </div>
+    </div>
+  </section>
+
+  <footer><span>© <span id="yr"></span> jgruber · built by hand · <b>theme</b> light|dark|amber|green|cyan</span><span>exit 0 <span class="cursor"></span></span></footer>
+</div>
+
+<script src="config.js"></script>
+<script src="main.js"></script>
+</body>
+</html>

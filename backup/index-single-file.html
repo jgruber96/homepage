@@ -1,0 +1,407 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>darkstarinc — ~/home</title>
+<meta name="description" content="Jeff Gruber — builder, tinkerer, photographer. Projects, photos and ways to get in touch.">
+<meta property="og:title" content="Jeff Gruber — ~/home">
+<meta property="og:description" content="Projects, photos and ways to get in touch.">
+<meta name="theme-color" content="#1b1713">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='6' fill='%231b1713'/><text x='5' y='22' font-family='monospace' font-size='16' font-weight='700' fill='%23ffb454'>&gt;_</text></svg>">
+<script>/* set light/dark before paint to avoid a flash: saved choice wins, otherwise follow the system setting */
+(function(){let m=null;try{m=localStorage.getItem("mode")}catch(e){}
+  if(!m)m=matchMedia("(prefers-color-scheme: light)").matches?"light":"dark";
+  if(m==="light")document.documentElement.dataset.mode="light"})();</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;600;800&display=swap" rel="stylesheet">
+<style>
+/* ---------- tokens: warm charcoal + amber phosphor ---------- */
+:root{
+  --bg:#1b1713; --bg2:#211c17; --panel:#26201acc; --line:#3a3128;
+  --fg:#efe4d2; --dim:#a8977f; --mute:#6b5d4c;
+  --acc:#ffb454; --acc-rgb:255,180,84; --acc2:#7ee0a1; --err:#ff6b6b;
+  --mono:'JetBrains Mono',ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+}
+:root[data-theme="green"]{--acc:#3dff9a;--acc-rgb:61,255,154;--acc2:#ffb454}
+:root[data-theme="cyan"]{--acc:#4de1ff;--acc-rgb:77,225,255;--acc2:#ffb454}
+:root{--rain-fade:rgba(27,23,19,.12);--scan:rgba(0,0,0,.08);--vig:rgba(0,0,0,.35);--glow:.22;--blend:screen}
+/* light mode: warm paper + darker amber ink for contrast */
+:root[data-mode="light"]{
+  --bg:#f7f2e8; --bg2:#efe7d8; --panel:#fffbf4d9; --line:#e2d5bf;
+  --fg:#2a2118; --dim:#6b5a45; --mute:#a3907a;
+  --acc:#b25f00; --acc-rgb:178,95,0; --acc2:#1d8048; --err:#c8323c;
+  --rain-fade:rgba(247,242,232,.14); --scan:rgba(0,0,0,.025); --vig:rgba(120,90,50,.10); --glow:.12; --blend:multiply;
+}
+:root[data-mode="light"][data-theme="green"]{--acc:#0b7d44;--acc-rgb:11,125,68;--acc2:#b25f00}
+:root[data-mode="light"][data-theme="cyan"]{--acc:#0a7493;--acc-rgb:10,116,147;--acc2:#b25f00}
+:root{--rain:var(--acc);--rain-op:.09}
+:root[data-mode="light"]{--rain:#6e3a00;--rain-op:.2}
+:root[data-mode="light"][data-theme="green"]{--rain:#075c32}
+:root[data-mode="light"][data-theme="cyan"]{--rain:#06566d}
+#rain.boost{opacity:.4!important}
+:root[data-mode="light"] #rain.boost{opacity:.5!important}
+:root[data-mode="light"] .term-h{background:#00000008}
+body,.panel,.dir,.term,.btn,.bar{transition:background-color .35s,color .35s,border-color .35s}
+
+/* mode toggle: a little terminal switch */
+#mode{display:inline-flex;align-items:center;gap:0;font:12px var(--mono);border:1px solid var(--line);border-radius:4px;
+  background:var(--panel);cursor:pointer;padding:2px;color:var(--mute)}
+#mode span{padding:2px 8px;border-radius:3px;transition:.2s}
+#mode:hover{border-color:var(--acc)}
+:root:not([data-mode="light"]) #mode .d,:root[data-mode="light"] #mode .l{background:var(--acc);color:var(--bg);font-weight:600}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--fg);font:15px/1.65 var(--mono);overflow-x:hidden;-webkit-font-smoothing:antialiased}
+#rain{position:fixed;inset:0;z-index:0;opacity:var(--rain-op);pointer-events:none;transition:opacity .35s}
+body::before{content:"";position:fixed;inset:0;z-index:1;pointer-events:none;
+  background:
+    linear-gradient(rgba(var(--acc-rgb),.045) 1px,transparent 1px) 0 0/100% 32px,
+    linear-gradient(90deg,rgba(var(--acc-rgb),.045) 1px,transparent 1px) 0 0/32px 100%;
+  mask-image:radial-gradient(ellipse at 50% 30%,#000 35%,transparent 85%)}
+body::after{content:"";position:fixed;inset:0;z-index:50;pointer-events:none;
+  background:repeating-linear-gradient(0deg,var(--scan) 0 1px,transparent 1px 3px),
+             radial-gradient(ellipse at center,transparent 65%,var(--vig))}
+::selection{background:var(--acc);color:var(--bg)}
+a{color:inherit;text-decoration:none}
+
+.wrap{position:relative;z-index:2;max-width:1120px;margin:0 auto;padding:20px 24px 40px;display:flex;flex-direction:column;gap:26px}
+
+/* status bar / nav */
+.bar{position:sticky;top:0;z-index:10;display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap;
+  font-size:12px;color:var(--dim);border-bottom:1px solid var(--line);padding:12px 0;
+  background:color-mix(in srgb,var(--bg) 88%,transparent);backdrop-filter:blur(8px)}
+.bar b{color:var(--acc);font-weight:600}
+.bar .seg{display:flex;gap:18px;flex-wrap:wrap;align-items:center}
+.bar nav a{color:var(--dim);padding:3px 6px;border-radius:3px;transition:.15s}
+.bar nav a::before{content:"./";color:var(--mute)}
+.bar nav a:hover{color:var(--acc);background:rgba(var(--acc-rgb),.1)}
+.dot{display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--acc2);
+  box-shadow:0 0 8px var(--acc2);margin-right:6px;vertical-align:1px;animation:pulse 2s infinite}
+@keyframes pulse{50%{opacity:.35}}
+
+/* hero */
+.hero{display:grid;grid-template-columns:1fr auto;gap:36px;align-items:end;margin-top:7vh}
+.greet{color:var(--dim);font-size:13px;margin-bottom:6px}
+.greet .k{color:var(--acc)}
+h1{font-size:clamp(56px,10vw,124px);font-weight:800;letter-spacing:-.05em;line-height:.95;
+  text-shadow:0 0 34px rgba(var(--acc-rgb),var(--glow))}
+h1 .u{color:var(--acc);animation:blink 1s steps(1) infinite}
+.glitch{position:relative;display:inline-block}
+.glitch:hover::before,.glitch:hover::after{content:attr(data-t);position:absolute;inset:0}
+.glitch:hover::before{color:var(--err);transform:translate(2px,-1px);clip-path:inset(0 0 60% 0);mix-blend-mode:var(--blend)}
+.glitch:hover::after{color:#4de1ff;transform:translate(-2px,1px);clip-path:inset(55% 0 0 0);mix-blend-mode:var(--blend)}
+.lede{margin-top:16px;color:var(--dim);font-size:16px;max-width:52ch}
+.lede span{color:var(--fg)}
+.cta{display:flex;gap:10px;margin-top:22px;flex-wrap:wrap}
+.btn{border:1px solid var(--line);padding:9px 15px;border-radius:4px;font-size:13px;color:var(--fg);background:var(--panel);transition:.15s}
+.btn:hover{border-color:var(--acc);color:var(--acc);box-shadow:0 0 18px -6px rgba(var(--acc-rgb),.6)}
+.btn.p{background:var(--acc);color:var(--bg);border-color:var(--acc);font-weight:600}
+.btn.p:hover{color:var(--bg);filter:brightness(1.08)}
+
+.sys{font-size:12px;color:var(--dim);border-left:1px solid var(--line);padding-left:20px;min-width:250px}
+.sys div{display:flex;justify-content:space-between;gap:20px}
+.sys i{font-style:normal;color:var(--fg);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+.sys{width:350px}
+.sys div>span{white-space:nowrap}
+.sys .meter{height:3px;background:var(--line);margin:3px 0 8px;position:relative;overflow:hidden}
+.sys .meter::after{content:"";position:absolute;inset:0;width:var(--w,40%);background:var(--acc);box-shadow:0 0 6px var(--acc)}
+
+/* terminal */
+.term{background:var(--panel);border:1px solid var(--line);backdrop-filter:blur(6px);border-radius:6px;overflow:hidden;
+  box-shadow:0 24px 60px -34px rgba(var(--acc-rgb),.35)}
+.term-h{display:flex;align-items:center;gap:8px;padding:8px 12px;border-bottom:1px solid var(--line);font-size:11px;color:var(--dim);background:#00000022}
+.term-h .l{width:10px;height:10px;border-radius:50%}
+.term-h .l:nth-child(1){background:#ff5f56aa}.term-h .l:nth-child(2){background:#ffbd2eaa}.term-h .l:nth-child(3){background:#27c93faa}
+.term-h .t{margin-left:auto}.term-h .t b{color:var(--acc)}
+#out{max-height:260px;overflow:auto;padding:12px 16px 0;font-size:13px;color:var(--dim);white-space:pre-wrap}
+#out .ok{color:var(--acc)} #out .er{color:var(--err)} #out .hl{color:var(--acc2)} #out .fg{color:var(--fg)}
+#out a{color:var(--acc2);text-decoration:underline;text-underline-offset:2px}
+.line{display:flex;align-items:center;gap:10px;padding:14px 16px;font-size:16px}
+.ps1{color:var(--acc);white-space:nowrap;font-weight:600}
+.ps1 .p{color:var(--acc2)} .ps1 .u{color:var(--dim);font-weight:400}
+#cmd{flex:1;background:none;border:0;outline:0;color:var(--fg);font:inherit;caret-color:var(--acc);min-width:0}
+#cmd::placeholder{color:var(--mute)}
+.chips{display:flex;gap:8px;flex-wrap:wrap;padding:0 16px 14px}
+.chips button{font:12px var(--mono);background:transparent;color:var(--dim);border:1px solid var(--line);border-radius:3px;padding:3px 9px;cursor:pointer}
+.chips button:hover{color:var(--acc);border-color:var(--acc)}
+
+/* section heads */
+.sh{display:flex;justify-content:space-between;align-items:baseline;gap:12px;flex-wrap:wrap;margin:18px 0 -8px}
+.sh h2{font-size:13px;font-weight:600;color:var(--acc)}
+.sh h2 .k{color:var(--mute);font-weight:400;margin-right:8px}
+.sh p{font-size:12px;color:var(--mute)}
+
+/* project / link dirs */
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:14px}
+.dir{background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:16px;position:relative;transition:border-color .2s,transform .2s;display:flex;flex-direction:column}
+.dir:hover{border-color:rgba(var(--acc-rgb),.5);transform:translateY(-2px)}
+.dir::before{content:"";position:absolute;left:-1px;top:16px;width:2px;height:20px;background:var(--acc);box-shadow:0 0 10px var(--acc)}
+.dir .path{font-size:11px;color:var(--mute);display:flex;justify-content:space-between;margin-bottom:6px}
+.dir .path b{color:var(--acc);font-weight:400}
+.dir h3{font-size:18px;font-weight:600;margin-bottom:6px;color:var(--fg)}
+.dir p{color:var(--dim);font-size:13px;flex:1;margin-bottom:12px}
+.dir .meta{display:flex;gap:6px;flex-wrap:wrap;font-size:11px;align-items:center}
+.tag{border:1px solid var(--line);color:var(--dim);padding:0 7px;border-radius:3px}
+.dir .go{margin-left:auto;color:var(--acc);transition:transform .2s}
+.dir:hover .go{transform:translateX(4px)}
+
+/* bottom row */
+.row2{display:grid;grid-template-columns:1.3fr 1fr;gap:14px}
+.row2>*{min-width:0}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:16px}
+.panel h3{font-size:12px;color:var(--acc);font-weight:600;margin-bottom:10px}
+.panel h3 span{color:var(--mute);font-weight:400}
+.panel p{color:var(--dim);font-size:14px;margin-bottom:10px}
+.panel p b{color:var(--fg);font-weight:400}
+.kv div{display:grid;grid-template-columns:90px 1fr;gap:10px;font-size:13px;padding:5px 0;border-bottom:1px dashed var(--line)}
+.kv div:last-child{border:0}
+.kv dt{color:var(--mute)} .kv dd{color:var(--fg)}
+.links a{display:flex;align-items:center;gap:12px;padding:8px 8px;margin:0 -8px;border-radius:4px;font-size:13px;transition:background .12s}
+.links a:hover{background:rgba(var(--acc-rgb),.1);color:var(--acc)}
+.links .ic{width:28px;height:28px;display:grid;place-items:center;border:1px solid var(--line);border-radius:4px;color:var(--acc);font-size:11px;flex:none}
+.links small{color:var(--mute);margin-left:auto}
+
+footer{font-size:11px;color:var(--mute);display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px;border-top:1px solid var(--line);padding-top:14px;margin-top:10px}
+footer b{color:var(--dim);font-weight:400}
+.cursor{display:inline-block;width:.6em;height:1.05em;background:var(--acc);vertical-align:-.15em;animation:blink 1s steps(1) infinite}
+@keyframes blink{50%{opacity:0}}
+
+#boot{position:fixed;inset:0;z-index:60;background:var(--bg);padding:28px;font-size:13px;color:var(--dim);white-space:pre;transition:opacity .4s}
+#boot.gone{opacity:0;pointer-events:none}
+#boot .ok{color:var(--acc2)}
+
+@media (max-width:780px){
+  .wrap{padding:0 16px 30px}
+  .bar{gap:10px;flex-wrap:nowrap}
+  .bar nav.seg{display:none}
+  .hero{grid-template-columns:1fr;margin-top:4vh}
+  .sys{border-left:0;padding-left:0;border-top:1px solid var(--line);padding-top:14px;min-width:0;width:auto}
+  .row2{grid-template-columns:1fr}
+  .line{font-size:14px}
+  .ps1 .u{display:none}
+  .grid{grid-template-columns:1fr}
+}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}#rain{display:none}}
+</style>
+</head>
+<body>
+<canvas id="rain" aria-hidden="true"></canvas>
+<div id="boot" aria-hidden="true"></div>
+
+<div class="wrap">
+  <header class="bar">
+    <div class="seg"><span><span class="dot"></span><b>jgruber@home</b></span><span id="clock">--:--:--</span></div>
+    <div class="seg">
+      <nav class="seg"><a href="#projects">projects</a><a href="#about">about</a><a href="#shell">shell</a><a href="#contact">contact</a></nav>
+      <button id="mode" type="button" aria-label="Toggle light and dark theme"><span class="d">dark</span><span class="l">light</span></button>
+    </div>
+  </header>
+
+  <section class="hero">
+    <div>
+      <div class="greet"><span class="k">$</span> whoami</div>
+      <h1><span class="glitch" data-t="Jeff Gruber">jeff</span><span class="u">_</span></h1>
+      <!-- EDIT: your one-line intro -->
+      <p class="lede">I build <span>small, useful things</span> for the web, self-host more than I should, and take a lot of photos.</p>
+      <div class="cta">
+        <a class="btn p" href="#projects">ls ./projects →</a>
+        <a class="btn" href="https://github.com/jgruber96" target="_blank" rel="noopener">github ↗</a>
+        <a class="btn" href="https://www.flickr.com/photos/jgruber15/" target="_blank" rel="noopener">flickr ↗</a>
+      </div>
+    </div>
+    <div class="sys" aria-label="quick stats">
+      <div><span>lines of code</span><i id="loc">0</i></div><div class="meter" id="locm" style="--w:0%"></div>
+      <div><span>something random</span><i id="rnd">—</i></div><div class="meter" id="rndm" style="--w:50%"></div>
+      <div><span>bugs</span><i>0 (allegedly)</i></div><div class="meter" style="--w:4%"></div>
+      <div><span>year.progress</span><i id="yearp">—</i></div><div class="meter" id="ym"></div>
+      <div><span>local time</span><i id="tz">US/Pacific</i></div>
+    </div>
+  </section>
+
+  <div class="term" id="shell">
+    <div class="term-h"><span class="l"></span><span class="l"></span><span class="l"></span><span style="margin-left:8px">guest@jgruber: ~</span><span class="t">type <b>help</b></span></div>
+    <div id="out"><span class="fg">Welcome, guest.</span> Type <span class="ok">help</span> to look around, or click a command below.
+</div>
+    <div class="line">
+      <label class="ps1" for="cmd"><span class="u">guest@jgruber</span><span class="p">:~</span>$</label>
+      <input id="cmd" autocomplete="off" spellcheck="false" placeholder="help">
+    </div>
+    <div class="chips"><button>help</button><button>about</button><button>projects</button><button>contact</button><button>neofetch</button><button>sudo</button></div>
+  </div>
+
+  <div class="sh" id="projects"><h2><span class="k">$</span>ls ~/projects</h2><p>// things I've shipped</p></div>
+  <section class="grid">
+    <a class="dir" href="https://github.com/jgruber96/chore-calendar" target="_blank" rel="noopener">
+      <div class="path"><span>drwxr-xr-x ~/projects/<b>chore-calendar</b></span><span>repo</span></div>
+      <h3>chore-calendar</h3>
+      <p>A self-hosted calendar for household chores: who's doing what, and when.</p>
+      <div class="meta"><span class="tag">self-hosted</span><span class="tag">web app</span><span class="go">→</span></div>
+    </a>
+    <a class="dir" href="https://www.flickr.com/photos/jgruber15/" target="_blank" rel="noopener">
+      <div class="path"><span>drwxr-xr-x ~/projects/<b>photos</b></span><span>flickr</span></div>
+      <h3>photo log</h3>
+      <p>My most viewed and most liked shots. Mostly whatever caught my eye that day.</p>
+      <div class="meta"><span class="tag">photography</span><span class="go">→</span></div>
+    </a>
+    <a class="dir" href="#shell">
+      <div class="path"><span>-rwxr-xr-x ~/projects/<b>homepage</b></span><span>you are here</span></div>
+      <h3>this site</h3>
+      <p>One hand-written HTML file. No framework, no tracking. Go break the shell above.</p>
+      <div class="meta"><span class="tag">html</span><span class="tag">css</span><span class="tag">vanilla js</span><span class="go">→</span></div>
+    </a>
+  </section>
+
+  <section class="row2">
+    <div class="panel" id="about">
+      <h3>~/about.md <span>· cat</span></h3>
+      <!-- EDIT: your bio -->
+      <p>Hey, I'm <b>jeff</b>. I like turning everyday annoyances into tiny tools: a self-hosted calendar for household chores, a page for my favourite photos, and this site.</p>
+      <p>When I'm not in a terminal I'm usually behind a camera.</p>
+      <dl class="kv">
+        <div><dt>role</dt><dd>builder · tinkerer</dd></div>
+        <div><dt>stack</dt><dd>html/css · javascript · self-hosting · git</dd></div>
+        <div><dt>offline</dt><dd>photography</dd></div>
+        <div><dt>status</dt><dd style="color:var(--acc2)">● building things</dd></div>
+      </dl>
+    </div>
+    <div class="panel" id="contact">
+      <h3>~/contact <span>· ping jgruber</span></h3>
+      <div class="links">
+        <a href="https://github.com/jgruber96" target="_blank" rel="noopener"><span class="ic">gh</span>github<small>@jgruber96 ↗</small></a>
+        <a href="https://www.flickr.com/photos/jgruber15/" target="_blank" rel="noopener"><span class="ic">fl</span>flickr<small>@jgruber15 ↗</small></a>
+        <!-- EDIT: add email / socials, e.g.
+        <a href="mailto:you@example.com"><span class="ic">@</span>email<small>you@example.com</small></a> -->
+      </div>
+    </div>
+  </section>
+
+  <footer><span>© <span id="yr"></span> jgruber · built by hand · <b>theme</b> light|dark|amber|green|cyan</span><span>exit 0 <span class="cursor"></span></span></footer>
+</div>
+
+<script>
+const $=s=>document.querySelector(s);
+const pad=n=>String(n).padStart(2,"0");
+const reduce=matchMedia("(prefers-reduced-motion:reduce)").matches;
+const store={get(k){try{return localStorage.getItem(k)}catch(e){return null}},set(k,v){try{localStorage.setItem(k,v)}catch(e){}}};
+
+/* theme (amber default; green/cyan via shell) */
+let rainColor="#ffb454";
+function setTheme(t){if(t==="amber")delete document.documentElement.dataset.theme;else document.documentElement.dataset.theme=t;
+  store.set("theme",t);rainColor=getComputedStyle(document.documentElement).getPropertyValue("--rain").trim()}
+setTheme(store.get("theme")||"amber");
+
+/* light / dark mode */
+let rainFade="rgba(27,23,19,.12)";
+function setMode(m,save=true){const r=document.documentElement;if(m==="light")r.dataset.mode="light";else delete r.dataset.mode;
+  if(save)store.set("mode",m);const cs=getComputedStyle(r);rainFade=cs.getPropertyValue("--rain-fade").trim();
+  rainColor=cs.getPropertyValue("--rain").trim();
+  document.querySelector('meta[name="theme-color"]').content=m==="light"?"#f7f2e8":"#1b1713";
+  if(typeof cv!=="undefined"){cx.fillStyle=cs.getPropertyValue("--bg").trim();cx.fillRect(0,0,cv.width,cv.height)}}
+const getMode=()=>document.documentElement.dataset.mode==="light"?"light":"dark";
+$("#mode").onclick=()=>setMode(getMode()==="light"?"dark":"light");
+/* follow live system changes until the visitor picks a mode themselves */
+const sysLight=matchMedia("(prefers-color-scheme: light)");
+sysLight.addEventListener("change",e=>{if(!store.get("mode"))setMode(e.matches?"light":"dark",false)});
+
+/* stats: lines of code (counts up) + something random (rotates) */
+const LOC=48213; /* EDIT: your rough lifetime line count */
+const RANDOM=[ /* EDIT: add your own */
+  "42","3 tabs open","cat on keyboard","it works on my machine","404 socks found","tabs > spaces",
+  "1 rubber duck","git push --force","undefined","NaN","have you tried rebooting?","∞ side projects",
+  "0 unread (lie)","sudo make sandwich","rm -rf boredom","¯\\_(ツ)_/¯"];
+(function(){const el=$("#loc"),m=$("#locm"),t0=performance.now(),dur=reduce?0:1800;
+  const f=t=>{const p=dur?Math.min(1,(t-t0)/dur):1,e=1-Math.pow(1-p,3);el.textContent=Math.round(LOC*e).toLocaleString();
+    m.style.setProperty("--w",(e*92)+"%");if(p<1)requestAnimationFrame(f);else{let n=LOC;
+      setInterval(()=>{n+=Math.random()<.5?1:Math.ceil(Math.random()*12);el.textContent=n.toLocaleString()},4000)}};
+  requestAnimationFrame(f)})();
+(function(){const el=$("#rnd"),m=$("#rndm");let last=-1;
+  const roll=()=>{let i;do{i=Math.random()*RANDOM.length|0}while(i===last&&RANDOM.length>1);last=i;
+    el.textContent=RANDOM[i];m.style.setProperty("--w",(8+Math.random()*90)+"%")};
+  roll();setInterval(roll,3500)})();
+
+/* boot sequence, once per visit */
+(function(){const el=$("#boot");let seen=null;try{seen=sessionStorage.getItem("boot")}catch(e){}
+  if(seen||reduce){el.remove();return}
+  const L=["[    0.000000] booting jgruber.home ...","[    0.012040] mounting ~/projects  <span class=ok>[ OK ]</span>",
+    "[    0.031337] starting shell.service  <span class=ok>[ OK ]</span>","[    0.048000] starting rain.daemon  <span class=ok>[ OK ]</span>","","welcome, guest."];
+  let i=0;const t=setInterval(()=>{el.innerHTML+=L[i++]+"\n";if(i>=L.length){clearInterval(t);
+    setTimeout(()=>{el.classList.add("gone");setTimeout(()=>el.remove(),450)},250)}},90);
+  try{sessionStorage.setItem("boot","1")}catch(e){}})();
+
+/* clock + year progress */
+function tick(){const d=new Date();$("#clock").textContent=pad(d.getHours())+":"+pad(d.getMinutes())+":"+pad(d.getSeconds());
+  const s=new Date(d.getFullYear(),0,1),yp=(d-s)/(new Date(d.getFullYear()+1,0,1)-s)*100;
+  $("#yearp").textContent=yp.toFixed(2)+"%";$("#ym").style.setProperty("--w",yp+"%")}
+tick();setInterval(tick,1000);
+$("#tz").textContent=Intl.DateTimeFormat().resolvedOptions().timeZone.split("/").pop().replace(/_/g," ").toLowerCase();
+$("#yr").textContent=new Date().getFullYear();
+
+/* visitor shell */
+const out=$("#out"),cmd=$("#cmd");let hist=[],hi=0;
+const esc=s=>String(s).replace(/[&<>]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;"}[c]));
+const print=h=>{out.innerHTML+=h+"\n";out.scrollTop=out.scrollHeight};
+const ext=(u,t)=>`<a href="${u}" target="_blank" rel="noopener">${t}</a>`;
+const C={
+  help:()=>`<span class=fg>available commands</span>
+  <span class=ok>about</span>      who is this
+  <span class=ok>projects</span>   things I've built
+  <span class=ok>contact</span>    where to find me
+  <span class=ok>neofetch</span>   system info
+  <span class=ok>theme</span>      light | dark | amber | green | cyan
+  <span class=ok>ls</span>, <span class=ok>cat</span>, <span class=ok>whoami</span>, <span class=ok>date</span>, <span class=ok>clear</span>`,
+  about:()=>`I build small, useful things for the web, self-host too much,
+and take a lot of photos.`,
+  projects:()=>`<span class=hl>chore-calendar/</span>  self-hosted chore calendar  → ${ext("https://github.com/jgruber96/chore-calendar","github")}
+<span class=hl>photos/</span>          favourite shots             → ${ext("https://www.flickr.com/photos/jgruber15/","flickr")}
+<span class=hl>homepage/</span>        this site                   → you're in it`,
+  contact:()=>`github  ${ext("https://github.com/jgruber96","@jgruber96")}
+flickr  ${ext("https://www.flickr.com/photos/jgruber15/","@jgruber15")}`,
+  ls:()=>`<span class=hl>about.md  projects/  photos/  contact.txt</span>  <span class=er>.secrets</span>`,
+  cat:a=>a[0]===".secrets"?`<span class=er>cat: .secrets: Permission denied</span>`:a[0]==="about.md"?C.about():`cat: ${esc(a[0]||"")}: no such file (try 'ls')`,
+  whoami:()=>"guest. but you're welcome here.",
+  neofetch:()=>`<span class=ok>   ___   </span>  <span class=ok>guest</span>@<span class=ok>jgruber</span>
+<span class=ok>  |&gt;_ |  </span>  ----------------
+<span class=ok>  |___|  </span>  <span class=fg>os</span>      ${esc(navigator.platform||"web")}
+<span class=ok>         </span>  <span class=fg>shell</span>   jsh 1.0
+<span class=ok>         </span>  <span class=fg>uptime</span>  ${Math.round(performance.now()/1000)}s on this page
+<span class=ok>         </span>  <span class=fg>theme</span>   ${document.documentElement.dataset.theme||"amber"}
+<span class=ok>         </span>  <span class=fg>deps</span>    0`,
+  theme:a=>{if(["light","dark"].includes(a[0])){setMode(a[0]);return`<span class=ok>mode → ${a[0]}</span>`}
+    if(!["amber","green","cyan"].includes(a[0]))return"usage: theme light|dark|amber|green|cyan";setTheme(a[0]);return`<span class=ok>theme → ${a[0]}</span>`},
+  light:()=>C.theme(["light"]),
+  dark:()=>C.theme(["dark"]),
+  matrix:()=>{rainBoost=!rainBoost;$("#rain").classList.toggle("boost",rainBoost);return rainBoost?"<span class=ok>wake up, guest…</span>":"back to reality"},
+  date:()=>new Date().toString(),
+  echo:a=>esc(a.join(" ")),
+  sudo:()=>`<span class=er>guest is not in the sudoers file. This incident will be reported.</span>`,
+  rm:()=>`<span class=er>nice try.</span>`,
+  exit:()=>"there is no exit. only scroll.",
+  clear:()=>{out.innerHTML="";return null},
+};
+function run(s){s=s.trim();if(!s)return;hist.push(s);hi=hist.length;
+  print(`<span class=ok>$</span> <span class=fg>${esc(s)}</span>`);const [h,...a]=s.split(/\s+/);const f=C[h.toLowerCase()];
+  const r=f?f(a):`<span class=er>command not found: ${esc(h)}</span> (try 'help')`;if(r!=null)print(r)}
+cmd.addEventListener("keydown",e=>{
+  if(e.key==="Enter"){run(cmd.value);cmd.value=""}
+  else if(e.key==="ArrowUp"&&hi>0){cmd.value=hist[--hi];e.preventDefault()}
+  else if(e.key==="ArrowDown"){hi=Math.min(hist.length,hi+1);cmd.value=hist[hi]||""}
+  else if(e.key==="Tab"){e.preventDefault();const m=Object.keys(C).filter(k=>k.startsWith(cmd.value));if(m.length===1)cmd.value=m[0]+" ";else if(m.length&&cmd.value)print(m.join("  "))}
+});
+document.querySelectorAll(".chips button").forEach(b=>b.onclick=()=>{run(b.textContent);cmd.focus({preventScroll:true})});
+document.addEventListener("keydown",e=>{if(e.key==="/"&&document.activeElement!==cmd){e.preventDefault();cmd.focus()}});
+
+/* katakana / hex rain */
+const cv=$("#rain"),cx=cv.getContext("2d");let cols,drops,rainBoost=false;const fs=16;
+const G="アイウエオカキクケコサシスセソタチツテトナニヌネノ0123456789ABCDEF<>/{}[];=$#";
+function size(){cv.width=innerWidth;cv.height=innerHeight;cols=Math.ceil(cv.width/fs);drops=Array.from({length:cols},()=>Math.random()*-60)}
+size();addEventListener("resize",size);
+setMode(getMode(),false);
+function rain(){cx.fillStyle=rainFade;cx.fillRect(0,0,cv.width,cv.height);cx.font=fs+"px monospace";
+  for(let i=0;i<cols;i++){const y=drops[i]*fs;cx.fillStyle=Math.random()<.04?(getMode()==="light"?"#2a2118":"#fff4e0"):rainColor;
+    cx.fillText(G[Math.random()*G.length|0],i*fs,y);if(y>cv.height&&Math.random()>.975)drops[i]=0;drops[i]+=rainBoost?1:.45}}
+if(!reduce)setInterval(rain,50);
+</script>
+</body>
+</html>

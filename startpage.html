@@ -1,0 +1,413 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>~/home</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;600;800&display=swap" rel="stylesheet">
+<style>
+/* ============================================================
+   CONFIG lives in the <script> at the bottom — edit LINKS there.
+   ============================================================ */
+:root{
+  --bg:#07090a; --bg2:#0c1012; --panel:#0e1416cc; --line:#1b2a2a;
+  --fg:#c9d6d3; --dim:#5e706d; --mute:#34433f;
+  --acc:#3dff9a; --acc-rgb:61,255,154; --acc2:#ffb454; --err:#ff5f6d;
+  --mono:'JetBrains Mono',ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+}
+:root[data-theme="amber"]{--acc:#ffb454;--acc-rgb:255,180,84;--acc2:#3dff9a}
+:root[data-theme="cyan"]{--acc:#4de1ff;--acc-rgb:77,225,255;--acc2:#ff6ad5}
+:root[data-theme="red"]{--acc:#ff4d5e;--acc-rgb:255,77,94;--acc2:#ffd166}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{
+  background:var(--bg);color:var(--fg);font:14px/1.6 var(--mono);
+  overflow-x:hidden;-webkit-font-smoothing:antialiased;
+}
+/* backdrop: matrix canvas + grid + scanlines + vignette */
+#rain{position:fixed;inset:0;z-index:0;opacity:.13;pointer-events:none}
+body::before{content:"";position:fixed;inset:0;z-index:1;pointer-events:none;
+  background:
+    linear-gradient(rgba(var(--acc-rgb),.035) 1px,transparent 1px) 0 0/100% 32px,
+    linear-gradient(90deg,rgba(var(--acc-rgb),.035) 1px,transparent 1px) 0 0/32px 100%;
+  mask-image:radial-gradient(ellipse at 50% 40%,#000 30%,transparent 80%)}
+body::after{content:"";position:fixed;inset:0;z-index:50;pointer-events:none;
+  background:repeating-linear-gradient(0deg,rgba(0,0,0,.18) 0 1px,transparent 1px 3px),
+             radial-gradient(ellipse at center,transparent 55%,rgba(0,0,0,.65));}
+::selection{background:var(--acc);color:var(--bg)}
+a{color:inherit;text-decoration:none}
+
+.wrap{position:relative;z-index:2;max-width:1180px;margin:0 auto;padding:22px 24px 40px;
+  min-height:100%;display:flex;flex-direction:column;gap:22px}
+
+/* top status bar */
+.bar{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;
+  font-size:12px;color:var(--dim);border-bottom:1px solid var(--line);padding-bottom:10px}
+.bar b{color:var(--acc);font-weight:600}
+.bar .seg{display:flex;gap:18px;flex-wrap:wrap}
+.dot{display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--acc);
+  box-shadow:0 0 8px var(--acc);margin-right:6px;vertical-align:1px;animation:pulse 2s infinite}
+@keyframes pulse{50%{opacity:.35}}
+
+/* hero */
+.hero{display:grid;grid-template-columns:1fr auto;gap:28px;align-items:end;margin-top:6vh}
+.greet{color:var(--dim);font-size:13px}
+.greet .k{color:var(--acc2)}
+.clock{font-size:clamp(56px,10vw,128px);font-weight:800;letter-spacing:-.04em;line-height:.95;
+  color:var(--fg);text-shadow:0 0 30px rgba(var(--acc-rgb),.18)}
+.clock .sec{color:var(--acc);font-weight:300;font-size:.38em;letter-spacing:0;margin-left:.25em;vertical-align:.95em}
+.clock .colon{color:var(--acc);animation:blink 1s steps(1) infinite}
+.date{color:var(--dim);font-size:13px;margin-top:6px}
+.date span{color:var(--fg)}
+.glitch{position:relative;display:inline-block}
+.glitch:hover::before,.glitch:hover::after{content:attr(data-t);position:absolute;inset:0;}
+.glitch:hover::before{color:var(--err);transform:translate(2px,-1px);clip-path:inset(0 0 60% 0);mix-blend-mode:screen}
+.glitch:hover::after{color:#4de1ff;transform:translate(-2px,1px);clip-path:inset(55% 0 0 0);mix-blend-mode:screen}
+
+.sys{font-size:12px;color:var(--dim);border-left:1px solid var(--line);padding-left:18px;min-width:230px}
+.sys div{display:flex;justify-content:space-between;gap:20px}
+.sys i{font-style:normal;color:var(--fg)}
+.sys .meter{height:3px;background:var(--line);margin:2px 0 6px;position:relative;overflow:hidden}
+.sys .meter::after{content:"";position:absolute;inset:0;width:var(--w,40%);background:var(--acc);box-shadow:0 0 6px var(--acc)}
+
+/* prompt */
+.term{background:var(--panel);border:1px solid var(--line);backdrop-filter:blur(6px);
+  border-radius:6px;overflow:hidden;box-shadow:0 20px 60px -30px rgba(var(--acc-rgb),.25)}
+.term-h{display:flex;align-items:center;gap:8px;padding:8px 12px;border-bottom:1px solid var(--line);
+  font-size:11px;color:var(--dim);background:#0a0f10}
+.term-h .l{width:10px;height:10px;border-radius:50%;background:var(--mute)}
+.term-h .l:nth-child(1){background:#ff5f56aa}.term-h .l:nth-child(2){background:#ffbd2eaa}.term-h .l:nth-child(3){background:#27c93faa}
+.term-h .t{margin-left:auto}
+#out{max-height:180px;overflow:auto;padding:10px 16px 0;font-size:13px;color:var(--dim);white-space:pre-wrap}
+#out:empty{display:none}
+#out .ok{color:var(--acc)} #out .er{color:var(--err)} #out .hl{color:var(--acc2)} #out .fg{color:var(--fg)}
+.line{display:flex;align-items:center;gap:10px;padding:14px 16px;font-size:16px}
+.ps1{color:var(--acc);white-space:nowrap;font-weight:600}
+.ps1 .p{color:var(--acc2)} .ps1 .u{color:var(--dim);font-weight:400}
+#cmd{flex:1;background:none;border:0;outline:0;color:var(--fg);font:inherit;caret-color:var(--acc);min-width:0}
+#cmd::placeholder{color:var(--mute)}
+.hint{font-size:11px;color:var(--mute);white-space:nowrap}
+.hint kbd{border:1px solid var(--line);padding:0 5px;border-radius:3px;color:var(--dim);font-family:inherit}
+
+/* directories */
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:14px}
+.dir{background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:14px 14px 10px;
+  position:relative;transition:border-color .2s, transform .2s}
+.dir:hover{border-color:rgba(var(--acc-rgb),.45);transform:translateY(-2px)}
+.dir::before{content:"";position:absolute;left:-1px;top:14px;width:2px;height:18px;background:var(--acc);box-shadow:0 0 10px var(--acc)}
+.dir h3{font-size:12px;font-weight:600;color:var(--acc);margin-bottom:8px;display:flex;justify-content:space-between}
+.dir h3 span{color:var(--mute);font-weight:400}
+.dir a{display:grid;grid-template-columns:52px 1fr auto;gap:8px;padding:3px 6px;margin:0 -6px;border-radius:3px;
+  font-size:13px;color:var(--fg);transition:background .12s}
+.dir a .perm{color:var(--mute);font-size:11px;line-height:20px}
+.dir a .key{color:var(--mute);font-size:11px;line-height:20px}
+.dir a:hover,.dir a.sel{background:rgba(var(--acc-rgb),.1);color:var(--acc)}
+.dir a:hover .key,.dir a.sel .key{color:var(--acc2)}
+.dir a:hover::after{content:""}
+
+/* bottom row */
+.row2{display:grid;grid-template-columns:1.3fr 1fr;gap:14px}
+.row2>*{min-width:0}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:14px}
+.panel h3{font-size:12px;color:var(--acc);font-weight:600;margin-bottom:8px}
+.panel h3 span{color:var(--mute);font-weight:400}
+#todos{list-style:none;font-size:13px}
+#todos li{display:flex;gap:10px;padding:2px 0;cursor:pointer}
+#todos li .n{color:var(--mute);width:22px}
+#todos li .b{color:var(--acc)}
+#todos li.done{color:var(--mute);text-decoration:line-through}
+#todos li.done .b{color:var(--mute)}
+#todos .empty{color:var(--mute);cursor:default}
+.log{font-size:12px;color:var(--dim);height:120px;overflow:hidden;position:relative}
+.log::after{content:"";position:absolute;inset:auto 0 0;height:40px;background:linear-gradient(transparent,var(--bg2))}
+.log div{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.log .t{color:var(--mute)} .log .g{color:var(--acc)} .log .y{color:var(--acc2)}
+
+footer{margin-top:auto;font-size:11px;color:var(--mute);display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px}
+footer b{color:var(--dim);font-weight:400}
+
+.cursor{display:inline-block;width:.6em;height:1.05em;background:var(--acc);vertical-align:-.15em;animation:blink 1s steps(1) infinite}
+@keyframes blink{50%{opacity:0}}
+
+/* boot overlay */
+#boot{position:fixed;inset:0;z-index:40;background:var(--bg);padding:28px;font-size:13px;color:var(--dim);
+  transition:opacity .4s}
+#boot.gone{opacity:0;pointer-events:none}
+#boot .ok{color:var(--acc)}
+
+@media (max-width:780px){
+  .wrap{padding:16px 16px 30px}
+  .hero{grid-template-columns:1fr;margin-top:2vh}
+  .sys{border-left:0;padding-left:0;border-top:1px solid var(--line);padding-top:12px}
+  .row2{grid-template-columns:1fr}
+  .hint{display:none}
+  .line{font-size:14px}
+  .ps1 .u{display:none}
+}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}#rain{display:none}}
+</style>
+</head>
+<body>
+<canvas id="rain"></canvas>
+<div id="boot"></div>
+
+<div class="wrap">
+  <div class="bar">
+    <div class="seg"><span><span class="dot"></span><b id="host">root@homepage</b></span><span>tty1</span><span id="uptime">up 00:00:00</span></div>
+    <div class="seg"><span id="net">net: online</span><span id="res">—</span><span id="bat"></span></div>
+  </div>
+
+  <section class="hero">
+    <div>
+      <div class="greet"><span class="k">$</span> whoami &amp;&amp; echo $GREETING &nbsp;→&nbsp; <span id="greet">hello</span></div>
+      <div class="clock"><span class="glitch" id="hm" data-t="00:00">00<span class="colon">:</span>00</span><span class="sec" id="ss">00</span></div>
+      <div class="date">// <span id="date">—</span> &nbsp;·&nbsp; week <span id="week">—</span> &nbsp;·&nbsp; day <span id="doy">—</span>/365</div>
+    </div>
+    <div class="sys">
+      <div><span>cpu.cores</span><i id="cores">—</i></div><div class="meter" id="m1" style="--w:40%"></div>
+      <div><span>mem.heap</span><i id="mem">—</i></div><div class="meter" id="m2" style="--w:55%"></div>
+      <div><span>day.progress</span><i id="dayp">—</i></div><div class="meter" id="m3"></div>
+      <div><span>year.progress</span><i id="yearp">—</i></div><div class="meter" id="m4"></div>
+      <div><span>tz</span><i id="tz">—</i></div>
+    </div>
+  </section>
+
+  <div class="term">
+    <div class="term-h"><span class="l"></span><span class="l"></span><span class="l"></span><span style="margin-left:8px">zsh — ~/home</span><span class="t">type <b style="color:var(--acc)">help</b></span></div>
+    <div id="out"></div>
+    <div class="line">
+      <span class="ps1"><span class="u">guest@home</span><span class="p">:~</span>$</span>
+      <input id="cmd" autocomplete="off" spellcheck="false" autofocus placeholder="search, url, or command…">
+      <span class="hint"><kbd>/</kbd> focus · <kbd>tab</kbd> complete · <kbd>↑</kbd> history</span>
+    </div>
+  </div>
+
+  <section class="grid" id="dirs"></section>
+
+  <section class="row2">
+    <div class="panel">
+      <h3>~/todo.txt <span>· todo add &lt;task&gt; · click to toggle · todo clear</span></h3>
+      <ul id="todos"></ul>
+    </div>
+    <div class="panel" style="background:var(--bg2)">
+      <h3>/var/log/syslog <span>· tail -f</span></h3>
+      <div class="log" id="log"></div>
+    </div>
+  </section>
+
+  <footer><span><b>[ESC]</b> clear · <b>[1-9]</b> open link in focused dir · <b>theme</b> green|amber|cyan|red</span><span>~/home v1.0 · <span class="cursor"></span></span></footer>
+</div>
+
+<script>
+/* ======================= CONFIG ======================= */
+const USER = "jgruber";            // shown in the greeting + host
+const LINKS = {
+  "~/dev": [
+    ["github",      "https://github.com/jgruber96",               "gh"],
+    ["chore-cal",   "https://github.com/jgruber96/chore-calendar","cc"],
+    ["claude",      "https://claude.ai",                          "cl"],
+    ["stackoverflow","https://stackoverflow.com",                 "so"],
+    ["mdn",         "https://developer.mozilla.org",              "mdn"],
+  ],
+  "~/media": [
+    ["youtube",     "https://youtube.com",                        "yt"],
+    ["flickr",      "https://flickr.com",                         "fl"],
+    ["twitch",      "https://twitch.tv",                          "tw"],
+    ["spotify",     "https://open.spotify.com",                   "sp"],
+  ],
+  "~/feeds": [
+    ["hacker news", "https://news.ycombinator.com",               "hn"],
+    ["reddit",      "https://reddit.com",                         "r"],
+    ["lobsters",    "https://lobste.rs",                          "lb"],
+    ["the verge",   "https://theverge.com",                       "vg"],
+  ],
+  "~/sys": [
+    ["gmail",       "https://mail.google.com",                    "gm"],
+    ["calendar",    "https://calendar.google.com",                "cal"],
+    ["drive",       "https://drive.google.com",                   "dr"],
+    ["maps",        "https://maps.google.com",                    "map"],
+  ],
+};
+// search engines: "<prefix> query"
+const ENGINES = {
+  g:  ["google",     q=>"https://www.google.com/search?q="+q],
+  d:  ["duckduckgo", q=>"https://duckduckgo.com/?q="+q],
+  yt: ["youtube",    q=>"https://www.youtube.com/results?search_query="+q],
+  gh: ["github",     q=>"https://github.com/search?q="+q],
+  r:  ["reddit",     q=>"https://www.reddit.com/search/?q="+q],
+  w:  ["wikipedia",  q=>"https://en.wikipedia.org/w/index.php?search="+q],
+  a:  ["amazon",     q=>"https://www.amazon.com/s?k="+q],
+  m:  ["maps",       q=>"https://www.google.com/maps/search/"+q],
+};
+const DEFAULT_ENGINE = "g";
+const OPEN_IN_NEW_TAB = false;
+/* ===================================================== */
+
+const $ = s => document.querySelector(s);
+const store = {
+  get(k,d){try{const v=localStorage.getItem("hp."+k);return v==null?d:JSON.parse(v)}catch(e){return d}},
+  set(k,v){try{localStorage.setItem("hp."+k,JSON.stringify(v))}catch(e){}}
+};
+const pad = n => String(n).padStart(2,"0");
+const go = url => OPEN_IN_NEW_TAB ? window.open(url,"_blank") : (location.href = url);
+
+/* ---- theme ---- */
+function setTheme(t){ if(t==="green") document.documentElement.removeAttribute("data-theme"); else document.documentElement.dataset.theme=t; store.set("theme",t); rainColor=getComputedStyle(document.documentElement).getPropertyValue("--acc").trim(); }
+let rainColor = "#3dff9a";
+setTheme(store.get("theme","green"));
+
+/* ---- boot sequence (once per session) ---- */
+(function boot(){
+  const el=$("#boot"); let seen=false; try{seen=sessionStorage.getItem("hp.boot")}catch(e){}
+  if(seen || matchMedia("(prefers-reduced-motion:reduce)").matches){el.remove();return}
+  const lines=["[    0.000000] Linux version 6.6.6-home (gcc 13.2)","[    0.004211] loading kernel modules ...",
+    "[    0.031337] mounting /dev/bookmarks on ~/  <span class=ok>[ OK ]</span>","[    0.048000] starting clock.service  <span class=ok>[ OK ]</span>",
+    "[    0.066600] starting rain.daemon  <span class=ok>[ OK ]</span>","[    0.080085] spawning shell for "+USER+" ...","","welcome."];
+  let i=0; const t=setInterval(()=>{ el.innerHTML+=lines[i++]+"\n"; el.style.whiteSpace="pre";
+    if(i>=lines.length){clearInterval(t);setTimeout(()=>{el.classList.add("gone");setTimeout(()=>el.remove(),450)},220)} },70);
+  try{sessionStorage.setItem("hp.boot","1")}catch(e){}
+})();
+
+/* ---- header / sys ---- */
+$("#host").textContent = USER+"@homepage";
+const t0 = Date.now();
+$("#cores").textContent = (navigator.hardwareConcurrency||"?")+" threads";
+$("#m1").style.setProperty("--w", Math.min(100,(navigator.hardwareConcurrency||4)/16*100)+"%");
+$("#tz").textContent = Intl.DateTimeFormat().resolvedOptions().timeZone;
+$("#res").textContent = screen.width+"×"+screen.height+"@"+devicePixelRatio+"x";
+const setNet=()=>$("#net").innerHTML="net: "+(navigator.onLine?"<b>online</b>":"<span style='color:var(--err)'>offline</span>");
+setNet(); addEventListener("online",setNet); addEventListener("offline",setNet);
+if(navigator.getBattery) navigator.getBattery().then(b=>{const u=()=>$("#bat").textContent="bat: "+Math.round(b.level*100)+"%"+(b.charging?" ⚡":"");u();b.onlevelchange=u;b.onchargingchange=u}).catch(()=>{});
+
+function tick(){
+  const d=new Date(), h=d.getHours(), m=d.getMinutes();
+  $("#hm").innerHTML=pad(h)+'<span class="colon">:</span>'+pad(m); $("#hm").dataset.t=pad(h)+":"+pad(m);
+  $("#ss").textContent=pad(d.getSeconds());
+  $("#date").textContent=d.toLocaleDateString(undefined,{weekday:"long",year:"numeric",month:"short",day:"numeric"}).toLowerCase();
+  const start=new Date(d.getFullYear(),0,1), doy=Math.floor((d-start)/864e5)+1;
+  $("#doy").textContent=doy;
+  const th=new Date(d); th.setDate(d.getDate()+3-((d.getDay()+6)%7)); const w1=new Date(th.getFullYear(),0,4);
+  $("#week").textContent=1+Math.round(((th-w1)/864e5-3+((w1.getDay()+6)%7))/7);
+  const dp=(h*3600+m*60+d.getSeconds())/864, yp=(d-start)/(new Date(d.getFullYear()+1,0,1)-start)*100;
+  $("#dayp").textContent=dp.toFixed(1)+"%"; $("#m3").style.setProperty("--w",dp+"%");
+  $("#yearp").textContent=yp.toFixed(2)+"%"; $("#m4").style.setProperty("--w",yp+"%");
+  const g = h<5?"burning the midnight oil":h<12?"good morning":h<18?"good afternoon":"good evening";
+  $("#greet").textContent=g+", "+USER;
+  const up=Math.floor((Date.now()-t0)/1000); $("#uptime").textContent="up "+pad(Math.floor(up/3600))+":"+pad(Math.floor(up/60)%60)+":"+pad(up%60);
+  if(performance.memory){const mb=performance.memory.usedJSHeapSize/1048576;$("#mem").textContent=mb.toFixed(1)+" MB";$("#m2").style.setProperty("--w",Math.min(100,mb/performance.memory.jsHeapSizeLimit*1048576*100*20)+"%")}
+  else $("#mem").textContent="n/a";
+}
+tick(); setInterval(tick,1000);
+
+/* ---- directories ---- */
+const flat=[];
+const perms=["drwxr-xr-x","-rwxr-xr-x","-rw-r--r--","lrwxrwxrwx"];
+$("#dirs").innerHTML = Object.entries(LINKS).map(([dir,items],di)=>`
+  <div class="dir" data-i="${di}"><h3>${dir} <span>${items.length} items</span></h3>
+  ${items.map(([n,u,k],i)=>{flat.push({n,u,k});return `<a href="${u}" ${OPEN_IN_NEW_TAB?'target="_blank" rel="noopener"':''}><span class="perm">${i+1} ${perms[i%4].slice(0,4)}</span><span>${n}</span><span class="key">${k}</span></a>`}).join("")}
+  </div>`).join("");
+
+/* ---- todos ---- */
+let todos=store.get("todos",[{t:"customize LINKS in index.html",d:false},{t:"set as browser homepage",d:false}]);
+function renderTodos(){
+  $("#todos").innerHTML = todos.length? todos.map((x,i)=>`<li class="${x.d?'done':''}" data-i="${i}"><span class="n">${pad(i+1)}</span><span class="b">[${x.d?'x':' '}]</span><span>${x.t.replace(/</g,"&lt;")}</span></li>`).join("")
+    : `<li class="empty">// nothing to do. suspicious.</li>`;
+  store.set("todos",todos);
+}
+$("#todos").onclick=e=>{const li=e.target.closest("li[data-i]");if(!li)return;todos[+li.dataset.i].d^=1;renderTodos()};
+renderTodos();
+
+/* ---- terminal ---- */
+const out=$("#out"), cmd=$("#cmd");
+let hist=store.get("hist",[]), hi=hist.length;
+const print=(html)=>{out.innerHTML+=html+"\n";out.scrollTop=out.scrollHeight};
+const isUrl=s=>/^(https?:\/\/)?([\w-]+\.)+[a-z]{2,}(:\d+)?(\/\S*)?$/i.test(s)||/^localhost(:\d+)?/.test(s);
+
+const COMMANDS={
+  help(){print(`<span class=fg>usage:</span>
+  <span class=ok>&lt;text&gt;</span>            search with ${ENGINES[DEFAULT_ENGINE][0]}
+  <span class=ok>&lt;engine&gt; &lt;q&gt;</span>      ${Object.entries(ENGINES).map(([k,v])=>k+"="+v[0]).join("  ")}
+  <span class=ok>&lt;shortcut&gt;</span>        open a bookmark (${flat.slice(0,5).map(x=>x.k).join(", ")} …)
+  <span class=ok>&lt;url&gt;</span>             go there
+  <span class=ok>ls</span>                list all shortcuts
+  <span class=ok>todo add|done|rm|clear</span>
+  <span class=ok>theme</span> green|amber|cyan|red
+  <span class=ok>clear</span>  <span class=ok>history</span>  <span class=ok>date</span>  <span class=ok>whoami</span>  <span class=ok>matrix</span>`)},
+  ls(){print(Object.entries(LINKS).map(([d,it])=>`<span class=hl>${d}/</span>\n`+it.map(([n,u,k])=>`  ${k.padEnd(6)} ${n}`).join("\n")).join("\n"))},
+  clear(){out.innerHTML=""},
+  cls(){out.innerHTML=""},
+  date(){print(new Date().toString())},
+  whoami(){print(USER)},
+  history(){print(hist.slice(-15).map((h,i)=>`  ${pad(i+1)}  ${h}`).join("\n")||"(empty)")},
+  theme(a){const t=a[0];if(!["green","amber","cyan","red"].includes(t))return print(`<span class=er>theme: expected green|amber|cyan|red</span>`);setTheme(t);print(`<span class=ok>theme → ${t}</span>`)},
+  todo(a){const s=a[0],rest=a.slice(1).join(" ");
+    if(s==="add"&&rest){todos.push({t:rest,d:false});print(`<span class=ok>+ ${rest}</span>`)}
+    else if(s==="done"&&todos[+rest-1]){todos[+rest-1].d=true;print(`<span class=ok>✓ ${todos[+rest-1].t}</span>`)}
+    else if(s==="rm"&&todos[+rest-1]){print(`<span class=er>- ${todos.splice(+rest-1,1)[0].t}</span>`)}
+    else if(s==="clear"){todos=todos.filter(x=>!x.d);print("cleared completed")}
+    else print("todo add &lt;task&gt; | done &lt;n&gt; | rm &lt;n&gt; | clear");
+    renderTodos()},
+  matrix(){rainBoost=!rainBoost;$("#rain").style.opacity=rainBoost?.45:.13;print(rainBoost?"<span class=ok>wake up, "+USER+"…</span>":"back to reality")},
+  sudo(){print(`<span class=er>${USER} is not in the sudoers file. This incident will be reported.</span>`)},
+  exit(){print("there is no escape.")},
+};
+
+function run(raw){
+  const s=raw.trim(); if(!s) return;
+  hist.push(s); hist=hist.slice(-100); store.set("hist",hist); hi=hist.length;
+  print(`<span class=ok>$</span> <span class=fg>${s.replace(/</g,"&lt;")}</span>`);
+  const [head,...args]=s.split(/\s+/), key=head.toLowerCase();
+  if(COMMANDS[key]) return COMMANDS[key](args);
+  if(ENGINES[key]&&args.length) return go(ENGINES[key][1](encodeURIComponent(args.join(" "))));
+  const bm=flat.find(x=>x.k===key||x.n.toLowerCase()===s.toLowerCase());
+  if(bm&&!args.length) return go(bm.u);
+  if(isUrl(s)) return go(/^https?:/.test(s)?s:"https://"+s);
+  go(ENGINES[DEFAULT_ENGINE][1](encodeURIComponent(s)));
+}
+
+cmd.addEventListener("keydown",e=>{
+  if(e.key==="Enter"){run(cmd.value);cmd.value=""}
+  else if(e.key==="ArrowUp"){if(hi>0){cmd.value=hist[--hi];e.preventDefault()}}
+  else if(e.key==="ArrowDown"){hi=Math.min(hist.length,hi+1);cmd.value=hist[hi]||""}
+  else if(e.key==="Tab"){e.preventDefault();const v=cmd.value.toLowerCase();if(!v)return;
+    const pool=[...Object.keys(COMMANDS),...flat.map(x=>x.k),...flat.map(x=>x.n)];
+    const m=pool.filter(p=>p.startsWith(v)); if(m.length===1)cmd.value=m[0]+" "; else if(m.length)print(m.join("  "))}
+  else if(e.key==="Escape"){cmd.value="";out.innerHTML=""}
+});
+
+/* global keys: "/" focus, 1-9 open link inside hovered dir */
+let hoverDir=null;
+document.querySelectorAll(".dir").forEach(d=>{d.onmouseenter=()=>hoverDir=d;d.onmouseleave=()=>hoverDir=null});
+document.addEventListener("keydown",e=>{
+  if(document.activeElement===cmd) return;
+  if(e.key==="/"){e.preventDefault();cmd.focus()}
+  else if(/^[1-9]$/.test(e.key)&&hoverDir){const a=hoverDir.querySelectorAll("a")[e.key-1];if(a)a.click()}
+  else if(e.key.length===1&&!e.metaKey&&!e.ctrlKey&&!e.altKey){cmd.focus()}
+});
+
+/* ---- fake syslog ---- */
+const msgs=[["g","sshd","accepted publickey for "+USER],["y","cron","(root) CMD (backup.sh)"],["","kernel","eth0: link up 1000Mbps"],
+  ["g","systemd","started daily cleanup"],["","nginx","GET / 200 0.003s"],["y","firewalld","blocked 203.0.113.42:445"],
+  ["","docker","container chore-calendar healthy"],["g","git","fetched origin/main"],["","ntpd","clock synced ±0.002s"],
+  ["y","sshd","invalid user admin from 198.51.100.7"],["","kernel","cpu0: temp 41°C"],["g","systemd","coffee.service active (running)"]];
+const log=$("#log");
+function addLog(){const [c,src,m]=msgs[Math.random()*msgs.length|0],d=new Date();
+  const div=document.createElement("div");
+  div.innerHTML=`<span class=t>${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}</span> <span class=${c}>${src}</span>: ${m}`;
+  log.prepend(div); while(log.children.length>8) log.lastChild.remove();}
+for(let i=0;i<6;i++)addLog(); setInterval(addLog,2600+Math.random()*1500);
+
+/* ---- matrix rain ---- */
+const cv=$("#rain"),cx=cv.getContext("2d"); let cols,drops,rainBoost=false; const fs=16;
+const glyphs="アイウエオカキクケコサシスセソタチツテトナニヌネノ0123456789ABCDEF<>/{}[];=$#";
+function size(){cv.width=innerWidth;cv.height=innerHeight;cols=Math.ceil(cv.width/fs);drops=Array.from({length:cols},()=>Math.random()*-60)}
+size(); addEventListener("resize",size);
+function rain(){cx.fillStyle="rgba(7,9,10,.12)";cx.fillRect(0,0,cv.width,cv.height);cx.font=fs+"px "+getComputedStyle(document.body).fontFamily;
+  for(let i=0;i<cols;i++){const y=drops[i]*fs;cx.fillStyle=Math.random()<.04?"#fff":rainColor;
+    cx.fillText(glyphs[Math.random()*glyphs.length|0],i*fs,y);
+    if(y>cv.height&&Math.random()>.975)drops[i]=0; drops[i]+=rainBoost?1:.5}}
+if(!matchMedia("(prefers-reduced-motion:reduce)").matches) setInterval(rain,50);
+</script>
+</body>
+</html>
