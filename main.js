@@ -126,6 +126,8 @@
   const H = esc(SITE.handle), L = SITE.links || {};
   const print = h => { out.insertAdjacentHTML("beforeend", h + "\n"); out.scrollTop = out.scrollHeight; };
   const ext = (u, t) => u ? `<a href="${esc(u)}" target="_blank" rel="noopener">${t}</a>` : t;
+  // project cards with data-link take their URL from config.js
+  document.querySelectorAll("[data-link]").forEach(a => { const u = L[a.dataset.link]; if (u) a.href = u; });
   const handleOf = u => { try { return "@" + new URL(u).pathname.split("/").filter(Boolean).pop(); } catch (e) { return u; } };
 
   const C = {
@@ -137,9 +139,10 @@
   <span class=ok>theme</span>      light | dark | amber | green | cyan
   <span class=ok>ls</span>, <span class=ok>cat</span>, <span class=ok>whoami</span>, <span class=ok>date</span>, <span class=ok>clear</span>`,
     about: () => esc(SITE.about),
-    projects: () => `<span class=hl>chore-calendar/</span>  chore calendar, web + ios app  → ${ext(L.choreCalendar, "github")}
-<span class=hl>photos/</span>          favourite shots                → ${ext(L.flickr, "flickr")}
-<span class=hl>homepage/</span>        this site                      → you're in it`,
+    projects: () => `<span class=hl>chore-calendar/</span>      chore calendar web app  → ${ext(L.choreCalendar, "github")}
+<span class=hl>chore-calendar-ios/</span>  native iPhone + iPad    → ${ext(L.iosApp, "app store")}
+<span class=hl>photos/</span>              favourite shots         → ${ext(L.flickr, "flickr")}
+<span class=hl>homepage/</span>            this site               → you're in it`,
     contact: () => Object.entries({ github: L.github, flickr: L.flickr, email: L.email })
       .filter(([, u]) => u)
       .map(([k, u]) => `${k.padEnd(7)} ${ext(u, esc(k === "email" ? u.replace(/^mailto:/, "") : handleOf(u)))}`).join("\n"),

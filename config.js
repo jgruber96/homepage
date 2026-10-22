@@ -13,6 +13,7 @@ window.SITE = {
     github: "https://github.com/jgruber96",
     flickr: "https://www.flickr.com/photos/jgruber15/",
     choreCalendar: "https://github.com/jgruber96/chore-calendar",
+    iosApp: "https://apps.apple.com/",   // placeholder: swap in the real App Store link once it's live
     // email: "mailto:you@example.com",   // uncomment to list it under `contact`
   },
 

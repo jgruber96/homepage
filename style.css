@@ -116,12 +116,14 @@ h1 .u{color:var(--acc);animation:blink 1s steps(1) infinite}
 .sh p{font-size:12px;color:var(--mute)}
 
 /* project / link dirs */
-.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:14px}
+.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
 .dir{background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:16px;position:relative;transition:border-color .2s,transform .2s;display:flex;flex-direction:column}
 .dir:hover{border-color:rgba(var(--acc-rgb),.5);transform:translateY(-2px)}
 .dir::before{content:"";position:absolute;left:-1px;top:16px;width:2px;height:20px;background:var(--acc);box-shadow:0 0 10px var(--acc)}
 .dir .path{font-size:11px;color:var(--mute);display:flex;justify-content:space-between;margin-bottom:6px}
 .dir .path b{color:var(--acc);font-weight:400}
+.dir .path i{font-style:normal}
+.dir .path>span:last-child{white-space:nowrap;margin-left:12px}
 .dir h3{font-size:18px;font-weight:600;margin-bottom:6px;color:var(--fg)}
 .dir p{color:var(--dim);font-size:13px;flex:1;margin-bottom:12px}
 .dir .meta{display:flex;gap:6px;flex-wrap:wrap;font-size:11px;align-items:center}
@@ -164,5 +166,6 @@ footer b{color:var(--dim);font-weight:400}
   .line{font-size:14px}
   .ps1 .u{display:none}
   .grid{grid-template-columns:1fr}
+  .dir .path .perm{display:none}
 }
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}#rain{display:none}}
