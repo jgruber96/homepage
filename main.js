@@ -137,9 +137,9 @@
   <span class=ok>theme</span>      light | dark | amber | green | cyan
   <span class=ok>ls</span>, <span class=ok>cat</span>, <span class=ok>whoami</span>, <span class=ok>date</span>, <span class=ok>clear</span>`,
     about: () => esc(SITE.about),
-    projects: () => `<span class=hl>chore-calendar/</span>  self-hosted chore calendar  → ${ext(L.choreCalendar, "github")}
-<span class=hl>photos/</span>          favourite shots             → ${ext(L.flickr, "flickr")}
-<span class=hl>homepage/</span>        this site                   → you're in it`,
+    projects: () => `<span class=hl>chore-calendar/</span>  chore calendar, web + ios app  → ${ext(L.choreCalendar, "github")}
+<span class=hl>photos/</span>          favourite shots                → ${ext(L.flickr, "flickr")}
+<span class=hl>homepage/</span>        this site                      → you're in it`,
     contact: () => Object.entries({ github: L.github, flickr: L.flickr, email: L.email })
       .filter(([, u]) => u)
       .map(([k, u]) => `${k.padEnd(7)} ${ext(u, esc(k === "email" ? u.replace(/^mailto:/, "") : handleOf(u)))}`).join("\n"),
