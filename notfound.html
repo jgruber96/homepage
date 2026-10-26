@@ -1,0 +1,457 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>404 — lost in space</title>
+<meta name="theme-color" content="#1b1713">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='6' fill='%231b1713'/><text x='5' y='22' font-family='monospace' font-size='16' font-weight='700' fill='%23ffb454'>&gt;_</text></svg>">
+<!-- Self-contained on purpose: a 404 can be served at any depth (/a/b/c), where relative links to style.css would break.
+     Light/dark and colour choices are shared with the homepage through the same localStorage keys ("mode", "theme"). -->
+<script>(function(){var r=document.documentElement,m=null,t=null;try{m=localStorage.getItem("mode");t=localStorage.getItem("theme")}catch(e){}
+  if(!m)m=matchMedia("(prefers-color-scheme: light)").matches?"light":"dark";if(m==="light")r.dataset.mode="light";
+  if(t==="green"||t==="cyan")r.dataset.theme=t})();</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;600;800&display=swap" rel="stylesheet">
+<style>
+/* ---------- tokens (same as the homepage) ---------- */
+:root{
+  --bg:#1b1713; --bg2:#211c17; --panel:#26201acc; --line:#3a3128;
+  --fg:#efe4d2; --dim:#a8977f; --mute:#6b5d4c;
+  --acc:#ffb454; --acc-rgb:255,180,84; --acc2:#7ee0a1; --err:#ff6b6b;
+  --mono:'JetBrains Mono',ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  --rain:var(--acc); --rain-op:.09; --rain-fade:rgba(27,23,19,.12);
+  --scan:rgba(0,0,0,.08); --vig:rgba(0,0,0,.35); --glow:.22; --blend:screen;
+  --tether:#d9cbb4;
+}
+:root[data-theme="green"]{--acc:#3dff9a;--acc-rgb:61,255,154;--acc2:#ffb454}
+:root[data-theme="cyan"]{--acc:#4de1ff;--acc-rgb:77,225,255;--acc2:#ffb454}
+:root[data-mode="light"]{
+  --bg:#f7f2e8; --bg2:#efe7d8; --panel:#fffbf4e6; --line:#e2d5bf;
+  --fg:#2a2118; --dim:#6b5a45; --mute:#a3907a;
+  --acc:#b25f00; --acc-rgb:178,95,0; --acc2:#1d8048; --err:#c8323c;
+  --rain:#6e3a00; --rain-op:.2; --rain-fade:rgba(247,242,232,.14);
+  --scan:rgba(0,0,0,.025); --vig:rgba(120,90,50,.10); --glow:.12; --blend:multiply;
+  --tether:#8a7a64;
+}
+:root[data-mode="light"][data-theme="green"]{--acc:#0b7d44;--acc-rgb:11,125,68;--acc2:#b25f00;--rain:#075c32}
+:root[data-mode="light"][data-theme="cyan"]{--acc:#0a7493;--acc-rgb:10,116,147;--acc2:#b25f00;--rain:#06566d}
+
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{min-height:100%}
+body{background:var(--bg);color:var(--fg);font:15px/1.65 var(--mono);overflow-x:hidden;-webkit-font-smoothing:antialiased;
+  transition:background-color .35s,color .35s}
+::selection{background:var(--acc);color:var(--bg)}
+a{color:inherit;text-decoration:none}
+
+/* backdrop: rain + grid + scanlines + vignette */
+#rain{position:fixed;inset:0;z-index:0;opacity:var(--rain-op);pointer-events:none;transition:opacity .35s}
+body::before{content:"";position:fixed;inset:0;z-index:1;pointer-events:none;
+  background:
+    linear-gradient(rgba(var(--acc-rgb),.045) 1px,transparent 1px) 0 0/100% 32px,
+    linear-gradient(90deg,rgba(var(--acc-rgb),.045) 1px,transparent 1px) 0 0/32px 100%;
+  mask-image:radial-gradient(ellipse at 50% 40%,#000 35%,transparent 85%)}
+body::after{content:"";position:fixed;inset:0;z-index:50;pointer-events:none;
+  background:repeating-linear-gradient(0deg,var(--scan) 0 1px,transparent 1px 3px),
+             radial-gradient(ellipse at center,transparent 65%,var(--vig))}
+
+/* tether canvas + astronaut */
+#tether{position:fixed;inset:0;z-index:2;pointer-events:none}
+#astro{position:fixed;left:0;top:0;width:100px;height:120px;z-index:3;cursor:pointer;will-change:transform;touch-action:manipulation;
+  filter:drop-shadow(0 6px 14px rgba(0,0,0,.35))}
+:root[data-mode="light"] #astro{filter:drop-shadow(0 6px 12px rgba(80,55,20,.25))}
+#astro svg{width:100%;height:100%;display:block;overflow:visible}
+#astro:focus-visible{outline:2px solid var(--acc);outline-offset:4px;border-radius:8px}
+.bubble{position:fixed;left:0;top:0;z-index:4;max-width:230px;pointer-events:none;
+  background:var(--panel);backdrop-filter:blur(6px);border:1px solid rgba(var(--acc-rgb),.55);border-radius:4px;
+  color:var(--fg);padding:7px 11px;font-size:12.5px;line-height:1.45;opacity:0;transition:opacity .25s;
+  box-shadow:0 10px 30px -14px rgba(var(--acc-rgb),.6)}
+.bubble::before{content:"> ";color:var(--acc)}
+.bubble.show{opacity:1}
+
+/* layout */
+.wrap{position:relative;z-index:5;max-width:1120px;min-height:100vh;margin:0 auto;padding:0 24px 28px;display:flex;flex-direction:column;
+  pointer-events:none}
+.wrap a,.wrap button,.wrap input,.term{pointer-events:auto}
+
+.bar{display:flex;justify-content:space-between;align-items:center;gap:12px;font-size:12px;color:var(--dim);
+  border-bottom:1px solid var(--line);padding:12px 0;pointer-events:auto}
+.bar b{color:var(--acc);font-weight:600}
+.bar .seg{display:flex;gap:18px;align-items:center}
+.dot{display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--err);
+  box-shadow:0 0 8px var(--err);margin-right:6px;vertical-align:1px;animation:pulse 1.2s infinite}
+@keyframes pulse{50%{opacity:.35}}
+#mode{display:inline-flex;align-items:center;font:12px var(--mono);border:1px solid var(--line);border-radius:4px;
+  background:var(--panel);cursor:pointer;padding:2px;color:var(--mute)}
+#mode span{padding:2px 8px;border-radius:3px;transition:.2s}
+#mode:hover{border-color:var(--acc)}
+:root:not([data-mode="light"]) #mode .d,:root[data-mode="light"] #mode .l{background:var(--acc);color:var(--bg);font-weight:600}
+
+main{flex:1;display:flex;flex-direction:column;justify-content:center;padding:6vh 0 4vh;max-width:720px}
+.greet{color:var(--dim);font-size:13px;margin-bottom:4px}
+.greet .k{color:var(--acc)}
+.num{font-size:clamp(96px,22vw,200px);font-weight:800;letter-spacing:-.06em;line-height:.9;
+  text-shadow:0 0 40px rgba(var(--acc-rgb),var(--glow))}
+.num .u{color:var(--acc);animation:blink 1s steps(1) infinite}
+.glitch{position:relative;display:inline-block}
+.glitch::before,.glitch::after{content:attr(data-t);position:absolute;inset:0;opacity:0;pointer-events:none}
+.glitch::before{color:var(--err);transform:translate(3px,-2px);clip-path:inset(0 0 62% 0);mix-blend-mode:var(--blend)}
+.glitch::after{color:#4de1ff;transform:translate(-3px,2px);clip-path:inset(58% 0 0 0);mix-blend-mode:var(--blend)}
+.glitch:hover::before,.glitch:hover::after,.glitch.zap::before,.glitch.zap::after{opacity:1}
+h1{font-size:clamp(22px,4vw,34px);font-weight:600;letter-spacing:-.02em;margin:14px 0 8px}
+.lead{color:var(--dim);font-size:16px;max-width:46ch}
+.lead b{color:var(--fg);font-weight:400}
+
+/* terminal */
+.term{margin-top:26px;background:var(--panel);border:1px solid var(--line);backdrop-filter:blur(6px);border-radius:6px;overflow:hidden;
+  box-shadow:0 24px 60px -34px rgba(var(--acc-rgb),.35);transition:background-color .35s,border-color .35s}
+.term-h{display:flex;align-items:center;gap:8px;padding:8px 12px;border-bottom:1px solid var(--line);font-size:11px;color:var(--dim);background:#00000022}
+:root[data-mode="light"] .term-h{background:#00000008}
+.term-h .l{width:10px;height:10px;border-radius:50%}
+.term-h .l:nth-child(1){background:#ff5f56aa}.term-h .l:nth-child(2){background:#ffbd2eaa}.term-h .l:nth-child(3){background:#27c93faa}
+#out{padding:12px 16px 0;font-size:13px;color:var(--dim);white-space:pre-wrap;word-break:break-word;max-height:220px;overflow:auto}
+#out .ok{color:var(--acc)} #out .er{color:var(--err)} #out .fg{color:var(--fg)} #out .hl{color:var(--acc2)}
+#out a{color:var(--acc2);text-decoration:underline;text-underline-offset:2px}
+.line{display:flex;align-items:center;gap:10px;padding:12px 16px 14px;font-size:15px}
+.ps1{color:var(--acc);white-space:nowrap;font-weight:600}
+.ps1 .p{color:var(--acc2)}
+#cmd{flex:1;min-width:0;background:none;border:0;outline:0;color:var(--fg);font:inherit;caret-color:var(--acc)}
+#cmd::placeholder{color:var(--mute)}
+
+.cta{display:flex;gap:10px;margin-top:22px;flex-wrap:wrap}
+.btn{border:1px solid var(--line);padding:9px 15px;border-radius:4px;font-size:13px;color:var(--fg);background:var(--panel);transition:.15s}
+.btn:hover{border-color:var(--acc);color:var(--acc);box-shadow:0 0 18px -6px rgba(var(--acc-rgb),.6)}
+.btn.p{background:var(--acc);color:var(--bg);border-color:var(--acc);font-weight:600}
+.btn.p:hover{color:var(--bg);filter:brightness(1.08)}
+.btn:focus-visible{outline:2px solid var(--acc);outline-offset:3px}
+
+footer{font-size:11px;color:var(--mute);display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px;border-top:1px solid var(--line);padding-top:14px}
+footer b{color:var(--dim);font-weight:400}
+.cursor{display:inline-block;width:.6em;height:1.05em;background:var(--acc);vertical-align:-.15em;animation:blink 1s steps(1) infinite}
+@keyframes blink{50%{opacity:0}}
+
+@media (max-width:640px){
+  .wrap{padding:0 16px 22px}
+  .bar .host{display:none}
+  .line{font-size:14px}
+  .bubble{max-width:180px}
+  #astro{width:80px;height:96px}
+}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}#rain{display:none}}
+</style>
+</head>
+<body>
+<canvas id="rain" aria-hidden="true"></canvas>
+<canvas id="tether" aria-hidden="true"></canvas>
+
+<div id="astro" role="button" tabindex="0" aria-label="Lost astronaut. Activate to hear what they say.">
+  <svg viewBox="0 0 100 120" aria-hidden="true">
+    <defs>
+      <radialGradient id="gs" cx=".35" cy=".3" r=".95"><stop offset="0" stop-color="#fff"/><stop offset=".5" stop-color="#ece6dc"/><stop offset="1" stop-color="#a99d8c"/></radialGradient>
+      <linearGradient id="gl" x1="0" x2="1"><stop offset="0" stop-color="#faf7f2"/><stop offset=".65" stop-color="#d3cabd"/><stop offset="1" stop-color="#968a79"/></linearGradient>
+      <linearGradient id="gp" x1="0" x2="1"><stop offset="0" stop-color="#e9e3d9"/><stop offset="1" stop-color="#9c907f"/></linearGradient>
+      <radialGradient id="gv" cx=".33" cy=".28" r=".9"><stop offset="0" stop-color="#ffd88a"/><stop offset=".3" stop-color="#d98a1e"/><stop offset=".7" stop-color="#4d2c06"/><stop offset="1" stop-color="#150b02"/></radialGradient>
+    </defs>
+    <!-- life-support backpack -->
+    <rect x="7" y="40" width="26" height="48" rx="7" fill="url(#gp)" stroke="#857a6a" stroke-width=".8"/>
+    <rect x="11" y="45" width="18" height="10" rx="2" fill="#bdb3a4"/>
+    <path d="M11 62h18M11 66h18M11 70h18" stroke="#857a6a" stroke-width="1"/>
+    <rect x="12" y="76" width="6" height="6" rx="1.5" fill="#ffb454"/>
+    <path d="M20 40v-7" stroke="#928675" stroke-width="1.5"/><circle cx="20" cy="32" r="1.6" fill="#ff6b6b"/>
+    <!-- hoses -->
+    <path d="M36 66c-8 2-6 10-12 8" fill="none" stroke="#6b604f" stroke-width="3" stroke-linecap="round"/>
+    <path d="M36 72c-6 3-5 9-11 8" fill="none" stroke="#968a78" stroke-width="2.4" stroke-linecap="round"/>
+    <!-- legs -->
+    <rect x="34" y="82" width="15" height="28" rx="7.5" fill="url(#gl)" transform="rotate(8 41 82)"/>
+    <rect x="50" y="82" width="15" height="28" rx="7.5" fill="url(#gl)" transform="rotate(-14 57 82)"/>
+    <rect x="34" y="94" width="15" height="4" rx="2" fill="#b5ab9c" transform="rotate(8 41 96)"/>
+    <rect x="50" y="94" width="15" height="4" rx="2" fill="#b5ab9c" transform="rotate(-14 57 96)"/>
+    <path d="M33 106c0-3 3-4 8-4h9c1 3 1 8-1 10H35c-2 0-2-3-2-6z" fill="#6f6556" stroke="#3d3529" stroke-width="1" transform="rotate(8 41 108)"/>
+    <path d="M49 106c0-3 3-4 8-4h9c1 3 1 8-1 10H51c-2 0-2-3-2-6z" fill="#6f6556" stroke="#3d3529" stroke-width="1" transform="rotate(-14 57 108)"/>
+    <!-- torso -->
+    <rect x="28" y="46" width="44" height="46" rx="15" fill="url(#gs)" stroke="#a99d8c" stroke-width=".8"/>
+    <rect x="30" y="85" width="40" height="7" rx="3.5" fill="#c9c0b2"/>
+    <!-- chest panel: a tiny terminal -->
+    <rect x="37" y="59" width="26" height="16" rx="3" fill="#1b1713" stroke="#3a3128" stroke-width="1"/>
+    <path d="M40 63l3 2-3 2" fill="none" stroke="#ffb454" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
+    <rect x="45" y="66" width="5" height="1.6" fill="#ffb454"/>
+    <circle cx="55" cy="64" r="1.5" fill="#ff6b6b"/><circle cx="59" cy="64" r="1.5" fill="#7ee0a1"/>
+    <rect x="40" y="70" width="20" height="2" rx="1" fill="#6b5d4c"/>
+    <!-- arms -->
+    <g transform="rotate(-32 68 52)"><rect x="62" y="48" width="13" height="33" rx="6.5" fill="url(#gl)"/><rect x="62" y="62" width="13" height="4" rx="2" fill="#b5ab9c"/></g>
+    <g transform="rotate(24 28 54)"><rect x="21" y="50" width="13" height="31" rx="6.5" fill="url(#gl)"/><rect x="21" y="63" width="13" height="4" rx="2" fill="#b5ab9c"/></g>
+    <circle cx="82" cy="77" r="6.5" fill="#ddd5c8" stroke="#6f6556" stroke-width="1"/><path d="M79 81l-2 4M82 82v5M85 81l2 4" stroke="#6f6556" stroke-width="2" stroke-linecap="round"/>
+    <circle cx="19" cy="81" r="6.5" fill="#ddd5c8" stroke="#6f6556" stroke-width="1"/><path d="M16 85l-2 4M19 86v5M22 85l2 4" stroke="#6f6556" stroke-width="2" stroke-linecap="round"/>
+    <!-- helmet -->
+    <ellipse cx="50" cy="52" rx="19" ry="5.5" fill="#b8ae9f"/>
+    <circle cx="50" cy="30" r="26" fill="url(#gs)" stroke="#a99d8c" stroke-width=".8"/>
+    <rect x="22" y="22" width="6" height="9" rx="2.5" fill="#4a4136"/><circle cx="25" cy="26" r="1.6" fill="#ffe2a8"/>
+    <ellipse cx="54" cy="31" rx="18" ry="16" fill="url(#gv)" stroke="#ebe4d8" stroke-width="1.6"/>
+    <ellipse cx="47" cy="23" rx="8" ry="4" fill="#fff" opacity=".5" transform="rotate(-24 47 23)"/>
+    <path d="M44 40c6 5 16 4 22-3-1 7-9 12-17 10-3-1-5-4-5-7z" fill="#ffb454" opacity=".28"/>
+    <circle cx="63" cy="22" r="1.6" fill="#fff" opacity=".8"/>
+  </svg>
+</div>
+<div class="bubble" id="bubble" aria-hidden="true"></div>
+
+<div class="wrap">
+  <header class="bar">
+    <div class="seg"><span><span class="dot"></span><b>jgruber@home</b></span><span class="host">signal lost</span></div>
+    <button id="mode" type="button" aria-label="Toggle light and dark theme"><span class="d">dark</span><span class="l">light</span></button>
+  </header>
+
+  <main>
+    <div class="greet"><span class="k">$</span> curl -I <span id="path-sm">this-page</span></div>
+    <p class="num" aria-label="404"><span class="glitch" id="num" data-t="404">404</span></p>
+    <h1>lost in space</h1>
+    <p class="lead">Houston, we have a problem. <b>This page cut its tether and drifted off.</b></p>
+
+    <div class="term">
+      <div class="term-h"><span class="l"></span><span class="l"></span><span class="l"></span><span style="margin-left:8px">guest@jgruber: ~</span></div>
+      <div id="out"></div>
+      <div class="line">
+        <label class="ps1" for="cmd">guest<span class="p">:~</span>$</label>
+        <input id="cmd" autocomplete="off" spellcheck="false" placeholder="cd ~">
+      </div>
+    </div>
+
+    <div class="cta">
+      <a class="btn p" href="/">cd ~ &nbsp;←&nbsp; return to base</a>
+      <a class="btn" href="/#projects">ls ~/projects</a>
+    </div>
+  </main>
+
+  <footer><span>error 404 · our astronaut is fine. <b>probably.</b></span><span>exit 1 <span class="cursor"></span></span></footer>
+</div>
+
+<script>
+(function () {
+  "use strict";
+  var $ = function (s) { return document.querySelector(s); };
+  var root = document.documentElement;
+  var reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  var store = {
+    get: function (k) { try { return localStorage.getItem(k); } catch (e) { return null; } },
+    set: function (k, v) { try { localStorage.setItem(k, v); } catch (e) {} }
+  };
+  var esc = function (s) { return String(s).replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }); };
+
+  /* ---------- the missing path ---------- */
+  var path = decodeURIComponentSafe(location.pathname + location.search) || "/";
+  function decodeURIComponentSafe(s) { try { return decodeURIComponent(s); } catch (e) { return s; } }
+  if (path.length > 60) path = path.slice(0, 57) + "...";
+  $("#path-sm").textContent = path;
+
+  /* ---------- colours (shared with homepage) ---------- */
+  var rain = $("#rain"), rx = rain.getContext("2d"), teth = $("#tether"), tx = teth.getContext("2d");
+  var rainColor = "#ffb454", rainFade = "rgba(27,23,19,.12)", tetherColor = "#d9cbb4", accent = "#ffb454";
+  function readColours() {
+    var cs = getComputedStyle(root);
+    rainColor = cs.getPropertyValue("--rain").trim() || rainColor;
+    rainFade = cs.getPropertyValue("--rain-fade").trim() || rainFade;
+    tetherColor = cs.getPropertyValue("--tether").trim() || tetherColor;
+    accent = cs.getPropertyValue("--acc").trim() || accent;
+    return cs;
+  }
+  var getMode = function () { return root.dataset.mode === "light" ? "light" : "dark"; };
+  function setMode(m, save) {
+    if (m === "light") root.dataset.mode = "light"; else delete root.dataset.mode;
+    if (save) store.set("mode", m);
+    var cs = readColours();
+    var meta = document.querySelector('meta[name="theme-color"]');
+    if (meta) meta.content = m === "light" ? "#f7f2e8" : "#1b1713";
+    rx.fillStyle = cs.getPropertyValue("--bg").trim(); rx.fillRect(0, 0, rain.width, rain.height);
+    if (reduce) drawStill();
+  }
+  $("#mode").addEventListener("click", function () { setMode(getMode() === "light" ? "dark" : "light", true); });
+  matchMedia("(prefers-color-scheme: light)").addEventListener("change", function (e) {
+    if (!store.get("mode")) setMode(e.matches ? "light" : "dark", false);
+  });
+
+  /* ---------- terminal ---------- */
+  var out = $("#out"), cmd = $("#cmd");
+  function print(h) { out.insertAdjacentHTML("beforeend", h + "\n"); out.scrollTop = out.scrollHeight; }
+  print('<span class=ok>$</span> <span class=fg>cd ' + esc(path) + '</span>');
+  print('<span class=er>bash: cd: ' + esc(path) + ': No such file or directory</span>');
+  print('<span class=fg>hint:</span> type <span class=ok>cd ~</span> to go home, or <span class=ok>help</span>.');
+
+  var goHome = function () { print('<span class=hl>returning to base…</span>'); setTimeout(function () { location.href = "/"; }, reduce ? 0 : 450); };
+  var C = {
+    help: function () { return '<span class=fg>you can try</span>\n  <span class=ok>cd ~</span>       return to base\n  <span class=ok>ls</span>         look around\n  <span class=ok>whereami</span>   current location\n  <span class=ok>ping</span>       call mission control\n  <span class=ok>theme</span>      light | dark\n  <span class=ok>clear</span>      clear the screen'; },
+    cd: function (a) {
+      var t = (a[0] || "~");
+      if (t === "~" || t === "/" || t === "~/" || t === "home" || t === "..") { goHome(); return null; }
+      if (/^~?\/?projects\/?$/.test(t)) { location.href = "/#projects"; return null; }
+      return '<span class=er>bash: cd: ' + esc(t) + ': No such file or directory</span>';
+    },
+    home: function () { goHome(); return null; },
+    exit: function () { goHome(); return null; },
+    ls: function () { return '<span class=hl>~/</span>  <a href="/">index.html</a>  <a href="/#projects">projects/</a>  <span class=er>' + esc(path.replace(/^\//, "")) + ' (missing)</span>'; },
+    whereami: function () { return 'somewhere past ' + esc(path) + '. the map ends here.'; },
+    pwd: function () { return esc(path); },
+    ping: function () { return 'PING mission-control: <span class=er>Request timeout</span>\n<span class=fg>— they can\'t hear you. try</span> <span class=ok>cd ~</span>'; },
+    sudo: function () { return '<span class=er>guest is not in the sudoers file. This incident will be reported to mission control.</span>'; },
+    theme: function (a) { if (a[0] === "light" || a[0] === "dark") { setMode(a[0], true); return '<span class=ok>mode → ' + a[0] + '</span>'; } return "usage: theme light|dark"; },
+    light: function () { return C.theme(["light"]); },
+    dark: function () { return C.theme(["dark"]); },
+    clear: function () { out.innerHTML = ""; return null; }
+  };
+  function run(s) {
+    s = s.trim(); if (!s) return;
+    print('<span class=ok>$</span> <span class=fg>' + esc(s) + '</span>');
+    var parts = s.split(/\s+/), h = parts[0].toLowerCase(), a = parts.slice(1);
+    var f = Object.prototype.hasOwnProperty.call(C, h) ? C[h] : null;
+    var r = f ? f(a) : '<span class=er>command not found: ' + esc(parts[0]) + '</span> (try <span class=ok>cd ~</span>)';
+    if (r != null) print(r);
+  }
+  cmd.addEventListener("keydown", function (e) { if (e.key === "Enter") { run(cmd.value); cmd.value = ""; } });
+  document.addEventListener("keydown", function (e) {
+    var tag = (document.activeElement && document.activeElement.tagName) || "";
+    if (e.key === "/" && tag !== "INPUT") { e.preventDefault(); cmd.focus(); }
+  });
+
+  /* ---------- glitch the 404 now and then ---------- */
+  if (!reduce) setInterval(function () { var n = $("#num"); n.classList.add("zap"); setTimeout(function () { n.classList.remove("zap"); }, 140); }, 3800);
+
+  /* ---------- canvases ---------- */
+  var W = 0, H = 0, dpr = 1, FS = 16, cols = 0, drops = [];
+  var GLYPHS = "アイウエオカキクケコサシスセソタチツテトナニヌネノ0123456789ABCDEF<>/{}[];=$#404";
+  function resize() {
+    dpr = window.devicePixelRatio || 1; W = innerWidth; H = innerHeight;
+    rain.width = W; rain.height = H;
+    teth.width = W * dpr; teth.height = H * dpr; teth.style.width = W + "px"; teth.style.height = H + "px";
+    tx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    cols = Math.ceil(W / FS); drops = [];
+    for (var i = 0; i < cols; i++) drops.push(Math.random() * -60);
+  }
+  function rainStep() {
+    rx.fillStyle = rainFade; rx.fillRect(0, 0, W, H);
+    rx.font = FS + "px monospace";
+    var flash = getMode() === "light" ? "#2a2118" : "#fff4e0";
+    for (var i = 0; i < cols; i++) {
+      var y = drops[i] * FS;
+      rx.fillStyle = Math.random() < 0.04 ? flash : rainColor;
+      rx.fillText(GLYPHS[Math.random() * GLYPHS.length | 0], i * FS, y);
+      if (y > H && Math.random() > 0.975) drops[i] = 0;
+      drops[i] += 0.45;
+    }
+  }
+
+  /* ---------- astronaut (from the original page) ---------- */
+  var astro = $("#astro"), bubble = $("#bubble");
+  var small = function () { return W <= 640; };
+  var pos, vel = { x: 12, y: 8 }, target = { x: 0, y: 0 }, angle = Math.random() * 360, angVel = 8, retarget = 0;
+  function pickTarget() {
+    var m = 80;
+    target.x = m + Math.random() * Math.max(1, W - 2 * m);
+    target.y = m + Math.random() * Math.max(1, H - 2 * m);
+    retarget = 3 + Math.random() * 4;
+  }
+  var N = 22, L = 13, rope = [];
+  function anchor() {
+    var k = small() ? 0.8 : 1, a = angle * Math.PI / 180, ox = -36 * k, oy = 2 * k;
+    return { x: pos.x + ox * Math.cos(a) - oy * Math.sin(a), y: pos.y + ox * Math.sin(a) + oy * Math.cos(a) };
+  }
+  function stepRope() {
+    var an = anchor();
+    rope[0].x = an.x; rope[0].y = an.y; rope[0].px = an.x; rope[0].py = an.y;
+    for (var i = 1; i < N; i++) {
+      var p = rope[i], vx = (p.x - p.px) * 0.985, vy = (p.y - p.py) * 0.985;
+      p.px = p.x; p.py = p.y;
+      p.x += vx + (Math.random() - 0.5) * 0.18; p.y += vy + (Math.random() - 0.5) * 0.18;
+    }
+    for (var k = 0; k < 6; k++) for (var j = 0; j < N - 1; j++) {
+      var a = rope[j], b = rope[j + 1], dx = b.x - a.x, dy = b.y - a.y, d = Math.sqrt(dx * dx + dy * dy) || 0.001, diff = (d - L) / d;
+      if (j === 0) { b.x -= dx * diff; b.y -= dy * diff; }
+      else { a.x += dx * diff * 0.5; a.y += dy * diff * 0.5; b.x -= dx * diff * 0.5; b.y -= dy * diff * 0.5; }
+    }
+  }
+  function drawRope() {
+    tx.clearRect(0, 0, W, H);
+    tx.lineCap = "round"; tx.lineJoin = "round";
+    // dashed "data cable" tether
+    tx.strokeStyle = tetherColor; tx.lineWidth = 2.5; tx.setLineDash([7, 5]);
+    tx.beginPath(); tx.moveTo(rope[0].x, rope[0].y);
+    for (var i = 1; i < N - 1; i++) { var mx = (rope[i].x + rope[i + 1].x) / 2, my = (rope[i].y + rope[i + 1].y) / 2; tx.quadraticCurveTo(rope[i].x, rope[i].y, mx, my); }
+    tx.lineTo(rope[N - 1].x, rope[N - 1].y); tx.stroke(); tx.setLineDash([]);
+    // loose connector at the free end
+    var e = rope[N - 1], p = rope[N - 2], ang = Math.atan2(e.y - p.y, e.x - p.x);
+    tx.save(); tx.translate(e.x, e.y); tx.rotate(ang);
+    tx.fillStyle = accent; tx.fillRect(-2, -5, 10, 10);
+    tx.fillStyle = getMode() === "light" ? "#f7f2e8" : "#1b1713"; tx.fillRect(4, -3, 3, 2); tx.fillRect(4, 1, 3, 2);
+    tx.restore();
+  }
+  var lines = [
+    "Is this the right page?",
+    "My tether! It was right here...",
+    "Mission control? Hello?",
+    "I'm not lost. The page is.",
+    "Tried turning the rocket off and on.",
+    "Houston, we have a 404.",
+    "Anyone seen a link around here?",
+    "On the bright side, great views.",
+    "Who unplugged the data cable?",
+    "Try typing cd ~ down there."
+  ];
+  var bubbleTimer = 2, bubbleHide = 0;
+  function say() {
+    bubble.textContent = lines[Math.floor(Math.random() * lines.length)];
+    bubble.classList.add("show"); bubbleHide = 2.8; bubbleTimer = 6 + Math.random() * 4;
+    if (reduce) place();
+  }
+  function poke() {
+    say();
+    angVel += (Math.random() < 0.5 ? -1 : 1) * 80;
+    vel.x += (Math.random() - 0.5) * 120; vel.y += (Math.random() - 0.5) * 120;
+    if (reduce) setTimeout(function () { bubble.classList.remove("show"); }, 2800);
+  }
+  astro.addEventListener("click", poke);
+  astro.addEventListener("keydown", function (e) { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); poke(); } });
+  function place() {
+    var hw = small() ? 40 : 50, hh = small() ? 48 : 60;
+    astro.style.transform = "translate(" + (pos.x - hw) + "px," + (pos.y - hh) + "px) rotate(" + angle + "deg)";
+    var bw = bubble.offsetWidth || 200;
+    var bx = Math.max(8, Math.min(W - bw - 8, pos.x + 30)), by = Math.max(8, pos.y - 100);
+    bubble.style.transform = "translate(" + bx + "px," + by + "px)";
+  }
+  function drawStill() { for (var s = 0; s < 80; s++) stepRope(); drawRope(); place(); }
+
+  /* ---------- start ---------- */
+  resize();
+  pos = small() ? { x: W * 0.75, y: H * 0.16 } : { x: W * 0.78, y: H * 0.3 };
+  target = { x: W * 0.7, y: H * 0.6 };
+  pickTarget();
+  var a0 = anchor();
+  for (var i = 0; i < N; i++) rope.push({ x: a0.x - i * L, y: a0.y, px: a0.x - i * L, py: a0.y });
+  addEventListener("resize", function () { resize(); pos.x = Math.min(pos.x, W - 40); pos.y = Math.min(pos.y, H - 50); if (reduce) drawStill(); });
+  setMode(getMode(), false);
+
+  if (reduce) { drawStill(); return; }
+  setInterval(rainStep, 50);
+  var last = performance.now();
+  function tick(now) {
+    var dt = Math.min(0.05, (now - last) / 1000); last = now;
+    retarget -= dt;
+    var dx = target.x - pos.x, dy = target.y - pos.y;
+    if (retarget <= 0 || dx * dx + dy * dy < 4900) pickTarget();
+    vel.x += dx * 0.12 * dt + (Math.random() - 0.5) * 30 * dt;
+    vel.y += dy * 0.12 * dt + (Math.random() - 0.5) * 30 * dt;
+    vel.x *= 0.995; vel.y *= 0.995;
+    var sp = Math.sqrt(vel.x * vel.x + vel.y * vel.y), max = 70;
+    if (sp > max) { vel.x *= max / sp; vel.y *= max / sp; }
+    pos.x = Math.max(40, Math.min(W - 40, pos.x + vel.x * dt));
+    pos.y = Math.max(50, Math.min(H - 50, pos.y + vel.y * dt));
+    angVel += (Math.random() - 0.5) * 20 * dt; angVel *= 0.995; angVel = Math.max(-40, Math.min(40, angVel));
+    angle += angVel * dt;
+    bubbleTimer -= dt; if (bubbleTimer <= 0) say();
+    if (bubbleHide > 0) { bubbleHide -= dt; if (bubbleHide <= 0) bubble.classList.remove("show"); }
+    stepRope(); drawRope(); place();
+    requestAnimationFrame(tick);
+  }
+  requestAnimationFrame(tick);
+})();
+</script>
+</body>
+</html>
