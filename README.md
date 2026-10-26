@@ -31,6 +31,6 @@ python -m http.server 8000   # then visit http://localhost:8000
 
 ## 404 page
 
-`notfound.html` is the custom 404 page: same amber terminal look, a drifting astronaut with a loose data cable, and a tiny shell (`cd ~` goes home). It's self-contained (inline CSS/JS) so it works at any broken URL depth, and it shares the light/dark choice with the homepage.
+`404.html` is the custom 404 page: same amber terminal look, a drifting astronaut with a loose data cable, and a tiny shell (`cd ~` goes home). It's self-contained (inline CSS/JS) so it works at any broken URL depth, and it shares the light/dark choice with the homepage.
 
-Most static hosts (Netlify, Cloudflare Pages, GitHub Pages) look for a file named `404.html` — rename or copy it if you host there. For nginx/Zoraxy-style setups, point the 404 error page at `/notfound.html`.
+Netlify, Cloudflare Pages and GitHub Pages pick up `404.html` automatically. On your own server or reverse proxy (nginx, Zoraxy, etc.), point the 404 error page at `/404.html`.
