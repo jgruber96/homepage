@@ -9,6 +9,7 @@ Personal homepage: hacker-style terminal look, amber theme, light/dark that foll
 | `index.html` | Page content (intro, bio, project cards, contact) |
 | `style.css` | All styling; colour tokens at the top |
 | `main.js` | Shell, matrix rain, light/dark toggle, clock, stats |
+| `favicon.ico`, `favicon.png`, `icon.svg`, `apple-touch-icon.png`, `icon-192.png`, `icon-512.png`, `site.webmanifest` | Site icon (amber `>_` prompt) for tabs, bookmarks and phone home screens |
 | `config.js` | **Your settings** — handle, links, lines of code, random list, timing |
 
 Not part of the live site (don't upload these when publishing):

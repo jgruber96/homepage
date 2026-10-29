@@ -6,7 +6,12 @@
 <meta name="robots" content="noindex">
 <title>404 — lost in space</title>
 <meta name="theme-color" content="#1b1713">
-<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='6' fill='%231b1713'/><text x='5' y='22' font-family='monospace' font-size='16' font-weight='700' fill='%23ffb454'>&gt;_</text></svg>">
+<!-- Icons. Absolute paths so they also work on the 404 page at any address. -->
+<link rel="icon" href="/favicon.ico" sizes="any">
+<link rel="icon" href="/icon.svg" type="image/svg+xml">
+<link rel="icon" href="/favicon.png" type="image/png" sizes="32x32">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="manifest" href="/site.webmanifest">
 <!-- Self-contained on purpose: a 404 can be served at any depth (/a/b/c), where relative links to style.css would break.
      Light/dark and colour choices are shared with the homepage through the same localStorage keys ("mode", "theme"). -->
 <script>(function(){var r=document.documentElement,m=null,t=null;try{m=localStorage.getItem("mode");t=localStorage.getItem("theme")}catch(e){}
