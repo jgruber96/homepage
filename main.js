@@ -59,7 +59,15 @@
       const top = el('div', 'p-top');
       const ic = el('span', 'icon'); ic.innerHTML = svg(ICONS[p.icon] || ICONS.star, 1.8); top.appendChild(ic);
       if(p.current) top.appendChild(el('span', 'badge here', '● You are here'));
-      else if(p.badge) top.appendChild(el('span', 'badge', p.badge));
+      else if(p.badge){
+        // each "·"-separated part stays on one line, so long badges wrap only at the dots
+        const bd = el('span', 'badge');
+        String(p.badge).split(' · ').forEach((part, i) => {
+          if(i) bd.appendChild(document.createTextNode(' · '));
+          bd.appendChild(el('span', 'seg', part));
+        });
+        top.appendChild(bd);
+      }
       a.appendChild(top);
       a.appendChild(el('h3', null, p.title || 'Untitled project'));
       if(p.description) a.appendChild(el('p', null, p.description));
