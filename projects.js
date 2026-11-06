@@ -21,7 +21,7 @@ window.PROJECTS = [
     title: "Chore Calendar",                              // card heading
     description: "A self-hosted calendar for household chores: who's doing what, and when. Runs on my home server.",
     link: "https://github.com/jgruber96/chore-calendar",  // where the card goes when clicked
-    badge: "Web app · self-hosted",                       // small label in the top-right corner
+    badge: "Web app · self-hosted · retired",                     // small label in the top-right corner
     icon: "calendar",   // calendar | phone | camera | code | globe | server | terminal | edit | star
     color: "orange",    // glow color: orange | rose | ice | green
     size: "wide",       // wide = 2/3 width | tall = 1/3 width, double height | small = 1/3 width
