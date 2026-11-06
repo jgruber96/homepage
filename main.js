@@ -1,230 +1,127 @@
-/* ~/home — behaviour. Settings live in config.js. */
-(function () {
-  "use strict";
+/* main.js — theme toggle, clock, project cards, card glow, nav highlight and the starfield.
+   Project content lives in projects.js; you shouldn't need to edit this file to change it. */
+(function(){
 
-  const SITE = Object.assign({
-    handle: "guest", links: {}, about: "", linesOfCode: 0,
-    random: ["42"], randomEveryMs: 3500, defaultTheme: "amber",
-  }, window.SITE || {});
-
-  const $ = s => document.querySelector(s);
   const root = document.documentElement;
-  const pad = n => String(n).padStart(2, "0");
-  const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
-  const store = {
-    get(k) { try { return localStorage.getItem(k); } catch (e) { return null; } },
-    set(k, v) { try { localStorage.setItem(k, v); } catch (e) {} },
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const store = { get(k){try{return localStorage.getItem(k)}catch(e){return null}}, set(k,v){try{localStorage.setItem(k,v)}catch(e){}} };
+
+  /* theme */
+  const btn = document.getElementById('mode'), icon = document.getElementById('modeIcon');
+  const MOON = 'M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z';
+  const SUN = 'M12 4V2M12 22v-2M4 12H2M22 12h-2M5.6 5.6 4.2 4.2M19.8 19.8l-1.4-1.4M5.6 18.4l-1.4 1.4M19.8 4.2l-1.4 1.4M12 7a5 5 0 1 0 0 10 5 5 0 0 0 0-10z';
+  const dark = () => root.dataset.theme ? root.dataset.theme==='dark' : !matchMedia('(prefers-color-scheme: light)').matches;
+  function paint(){ icon.setAttribute('d', dark()? MOON : SUN); btn.setAttribute('aria-label', dark()? 'Switch to light mode':'Switch to dark mode'); drawStars(); }
+  const saved = store.get('ds2-mode'); if(saved) root.dataset.theme = saved;
+  btn.addEventListener('click', () => { const m = dark()? 'light':'dark'; root.dataset.theme=m; store.set('ds2-mode', m); paint(); });
+  matchMedia('(prefers-color-scheme: light)').addEventListener?.('change', paint);
+
+  /* clock + year */
+  const fmt = new Intl.DateTimeFormat('en-US',{hour:'numeric',minute:'2-digit',timeZone:'America/Los_Angeles'});
+  const clock = document.getElementById('clock');
+  function tick(){
+    clock.textContent = 'Pacific Time · ' + fmt.format(new Date());
+    const n=new Date(), y=n.getFullYear(), p=(n-new Date(y,0,1))/(new Date(y+1,0,1)-new Date(y,0,1))*100;
+    document.getElementById('yrpct').textContent = p.toFixed(1)+'%';
+    document.getElementById('yrbar').style.width = p+'%';
+    document.getElementById('yrn').textContent = y; document.getElementById('yr').textContent = y;
+  }
+  tick(); setInterval(tick, 15000);
+
+  /* ---------- project cards (data lives in projects.js) ---------- */
+  const ICONS = {
+    calendar: '<rect x="3" y="5" width="18" height="16" rx="3"/><path d="M3 10h18M8 3v4M16 3v4"/><path d="m9 15 2 2 4-4"/>',
+    phone:    '<rect x="6" y="2" width="12" height="20" rx="3"/><path d="M11 18h2"/>',
+    camera:   '<path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/>',
+    code:     '<path d="m8 8-4 4 4 4M16 8l4 4-4 4M14 5l-4 14"/>',
+    globe:    '<circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 2.6 3.8 5.6 3.8 9s-1.3 6.4-3.8 9c-2.5-2.6-3.8-5.6-3.8-9S9.5 5.6 12 3z"/>',
+    server:   '<rect x="4" y="4" width="16" height="7" rx="2"/><rect x="4" y="13" width="16" height="7" rx="2"/><path d="M8 7.5h.01M8 16.5h.01"/>',
+    terminal: '<rect x="3" y="4" width="18" height="16" rx="3"/><path d="m7 9 3 3-3 3M12 15h5"/>',
+    edit:     '<path d="M4 20h4L19 9l-4-4L4 16z"/><path d="m13 7 4 4"/>',
+    star:     '<path d="m12 3 2.7 5.6 6.1.8-4.4 4.3 1.1 6.1L12 17l-5.5 2.8 1.1-6.1-4.4-4.3 6.1-.8z"/>'
   };
-  const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
-
-  /* ---------- canvas (declared early so theme functions can use it) ---------- */
-  const cv = $("#rain"), cx = cv.getContext("2d");
-  const FS = 16, GLYPHS = "アイウエオカキクケコサシスセソタチツテトナニヌネノ0123456789ABCDEF<>/{}[];=$#";
-  let cols = 0, drops = [], rainBoost = false, rainColor = "#ffb454", rainFade = "rgba(27,23,19,.12)";
-
-  /* ---------- colour theme (amber / green / cyan) ---------- */
-  const THEMES = ["amber", "green", "cyan"];
-  function readColours() {
-    const cs = getComputedStyle(root);
-    rainColor = cs.getPropertyValue("--rain").trim() || rainColor;
-    rainFade = cs.getPropertyValue("--rain-fade").trim() || rainFade;
-    return cs;
-  }
-  function setTheme(t, save = true) {
-    if (!THEMES.includes(t)) t = "amber";
-    if (t === "amber") delete root.dataset.theme; else root.dataset.theme = t;
-    if (save) store.set("theme", t);
-    readColours();
-  }
-
-  /* ---------- light / dark ---------- */
-  const getMode = () => (root.dataset.mode === "light" ? "light" : "dark");
-  function setMode(m, save = true) {
-    if (m === "light") root.dataset.mode = "light"; else delete root.dataset.mode;
-    if (save) store.set("mode", m);
-    const cs = readColours();
-    const meta = document.querySelector('meta[name="theme-color"]');
-    if (meta) meta.content = m === "light" ? "#f7f2e8" : "#1b1713";
-    cx.fillStyle = cs.getPropertyValue("--bg").trim(); // wipe old rain trails
-    cx.fillRect(0, 0, cv.width, cv.height);
-  }
-  $("#mode").addEventListener("click", () => setMode(getMode() === "light" ? "dark" : "light"));
-  // follow live system changes until the visitor picks a mode themselves
-  matchMedia("(prefers-color-scheme: light)").addEventListener("change", e => {
-    if (!store.get("mode")) setMode(e.matches ? "light" : "dark", false);
-  });
-
-  /* ---------- boot sequence, once per visit ---------- */
-  (function boot() {
-    const el = $("#boot");
-    if (!el) return;
-    let seen = null; try { seen = sessionStorage.getItem("boot"); } catch (e) {}
-    if (seen || reduce) { el.remove(); return; }
-    const L = [
-      `[    0.000000] booting ${esc(SITE.handle)}.home ...`,
-      "[    0.012040] mounting ~/projects  <span class=ok>[ OK ]</span>",
-      "[    0.031337] starting shell.service  <span class=ok>[ OK ]</span>",
-      "[    0.048000] starting rain.daemon  <span class=ok>[ OK ]</span>",
-      "", "welcome, guest.",
-    ];
-    let i = 0;
-    const t = setInterval(() => {
-      el.innerHTML += L[i++] + "\n";
-      if (i >= L.length) {
-        clearInterval(t);
-        setTimeout(() => { el.classList.add("gone"); setTimeout(() => el.remove(), 450); }, 250);
+  const SIZES = { wide:'b-wide', tall:'b-tall', small:'b-half' };
+  const COLORS = { orange:'h-orange', rose:'h-rose', ice:'h-ice', green:'h-ok' };
+  const svg = (inner, sw) => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="${sw}" stroke-linecap="round" stroke-linejoin="round">${inner}</svg>`;
+  function el(tag, cls, text){ const n = document.createElement(tag); if(cls) n.className = cls; if(text != null) n.textContent = text; return n; }
+  function renderProjects(){
+    const grid = document.getElementById('projects-grid');
+    if(!grid || !Array.isArray(window.PROJECTS)) return;
+    window.PROJECTS.forEach(p => {
+      const a = el('a', ['card', SIZES[p.size] || 'b-half', COLORS[p.color] || 'h-orange', p.current ? '' : 'has-arrow'].join(' ').trim());
+      a.href = p.current ? '#top' : (p.link || '#');
+      if(/^https?:/.test(a.getAttribute('href'))){ a.target = '_blank'; a.rel = 'noopener'; }
+      a.appendChild(el('span', 'shine'));
+      if(!p.current){
+        const ar = el('span', 'arrow'); ar.setAttribute('aria-hidden', 'true');
+        ar.innerHTML = svg('<path d="M5 12h14M13 6l6 6-6 6"/>', 2); a.appendChild(ar);
       }
-    }, 90);
-    try { sessionStorage.setItem("boot", "1"); } catch (e) {}
-  })();
-
-  /* ---------- clock + year progress ---------- */
-  function tick() {
-    const d = new Date();
-    $("#clock").textContent = pad(d.getHours()) + ":" + pad(d.getMinutes()) + ":" + pad(d.getSeconds());
-    const s = new Date(d.getFullYear(), 0, 1);
-    const yp = (d - s) / (new Date(d.getFullYear() + 1, 0, 1) - s) * 100;
-    $("#yearp").textContent = yp.toFixed(2) + "%";
-    $("#ym").style.setProperty("--w", yp + "%");
+      const top = el('div', 'p-top');
+      const ic = el('span', 'icon'); ic.innerHTML = svg(ICONS[p.icon] || ICONS.star, 1.8); top.appendChild(ic);
+      if(p.current) top.appendChild(el('span', 'badge here', '● You are here'));
+      else if(p.badge) top.appendChild(el('span', 'badge', p.badge));
+      a.appendChild(top);
+      a.appendChild(el('h3', null, p.title || 'Untitled project'));
+      if(p.description) a.appendChild(el('p', null, p.description));
+      if(p.extra === 'calendar'){
+        const m = el('div', 'mini'); m.setAttribute('aria-hidden', 'true');
+        ['','c1','','c2','','c3','','c4','','c1 today','','c2','c3',''].forEach(c => m.appendChild(el('i', c || null)));
+        a.appendChild(m);
+      } else if(p.extra === 'photos'){
+        const f = el('div', 'film'); f.setAttribute('aria-hidden', 'true');
+        for(let i = 0; i < 3; i++) f.appendChild(el('i')); a.appendChild(f);
+      }
+      if(Array.isArray(p.tags) && p.tags.length){
+        const t = el('div', 'tags'); p.tags.forEach(x => t.appendChild(el('span', null, x))); a.appendChild(t);
+      }
+      grid.appendChild(a);
+    });
   }
-  tick(); setInterval(tick, 1000);
-  try {
-    $("#tz").textContent = Intl.DateTimeFormat().resolvedOptions().timeZone.split("/").pop().replace(/_/g, " ").toLowerCase();
-  } catch (e) {}
-  $("#yr").textContent = new Date().getFullYear();
+  renderProjects();
 
-  /* ---------- stats: lines of code + something random ---------- */
-  (function loc() {
-    const el = $("#loc"), m = $("#locm"), target = Number(SITE.linesOfCode) || 0;
-    const t0 = performance.now(), dur = reduce ? 0 : 1800;
-    const f = t => {
-      const p = dur ? Math.min(1, (t - t0) / dur) : 1, e = 1 - Math.pow(1 - p, 3);
-      el.textContent = Math.round(target * e).toLocaleString();
-      m.style.setProperty("--w", (e * 92) + "%");
-      if (p < 1) return requestAnimationFrame(f);
-      let n = target;
-      setInterval(() => { n += Math.random() < 0.5 ? 1 : Math.ceil(Math.random() * 12); el.textContent = n.toLocaleString(); }, 4000);
-    };
-    requestAnimationFrame(f);
-  })();
-  (function rnd() {
-    const list = SITE.random && SITE.random.length ? SITE.random : ["42"];
-    const el = $("#rnd"), m = $("#rndm");
-    let last = -1;
-    const roll = () => {
-      let i; do { i = Math.random() * list.length | 0; } while (i === last && list.length > 1);
-      last = i;
-      el.textContent = list[i];
-      m.style.setProperty("--w", (8 + Math.random() * 90) + "%");
-    };
-    roll(); setInterval(roll, SITE.randomEveryMs || 3500);
-  })();
-
-  /* ---------- visitor shell ---------- */
-  const out = $("#out"), cmd = $("#cmd");
-  const hist = []; let hi = 0;
-  const H = esc(SITE.handle), L = SITE.links || {};
-  const print = h => { out.insertAdjacentHTML("beforeend", h + "\n"); out.scrollTop = out.scrollHeight; };
-  const ext = (u, t) => u ? `<a href="${esc(u)}" target="_blank" rel="noopener">${t}</a>` : t;
-  // project cards with data-link take their URL from config.js
-  document.querySelectorAll("[data-link]").forEach(a => { const u = L[a.dataset.link]; if (u) a.href = u; });
-  const handleOf = u => { try { return "@" + new URL(u).pathname.split("/").filter(Boolean).pop(); } catch (e) { return u; } };
-
-  const C = {
-    help: () => `<span class=fg>available commands</span>
-  <span class=ok>about</span>      who is this
-  <span class=ok>projects</span>   things I've built
-  <span class=ok>contact</span>    where to find me
-  <span class=ok>neofetch</span>   system info
-  <span class=ok>theme</span>      light | dark | amber | green | cyan
-  <span class=ok>ls</span>, <span class=ok>cat</span>, <span class=ok>whoami</span>, <span class=ok>date</span>, <span class=ok>clear</span>`,
-    about: () => esc(SITE.about),
-    projects: () => `<span class=hl>chore-calendar/</span>      chore calendar web app  → ${ext(L.choreCalendar, "github")}
-<span class=hl>chore-calendar-ios/</span>  native iPhone + iPad    → ${ext(L.iosApp, "app store")}
-<span class=hl>photos/</span>              favourite shots         → ${ext(L.flickr, "flickr")}
-<span class=hl>homepage/</span>            this site               → you're in it`,
-    contact: () => Object.entries({ github: L.github, flickr: L.flickr, email: L.email })
-      .filter(([, u]) => u)
-      .map(([k, u]) => `${k.padEnd(7)} ${ext(u, esc(k === "email" ? u.replace(/^mailto:/, "") : handleOf(u)))}`).join("\n"),
-    ls: () => `<span class=hl>about.md  projects/  photos/  contact.txt</span>  <span class=er>.secrets</span>`,
-    cat: a => a[0] === ".secrets" ? `<span class=er>cat: .secrets: Permission denied</span>`
-      : a[0] === "about.md" ? C.about() : `cat: ${esc(a[0] || "")}: no such file (try 'ls')`,
-    whoami: () => "guest. but you're welcome here.",
-    neofetch: () => `<span class=ok>   ___   </span>  <span class=ok>guest</span>@<span class=ok>${H}</span>
-<span class=ok>  |&gt;_ |  </span>  ----------------
-<span class=ok>  |___|  </span>  <span class=fg>os</span>      ${esc(navigator.platform || "web")}
-<span class=ok>         </span>  <span class=fg>shell</span>   jsh 1.0
-<span class=ok>         </span>  <span class=fg>uptime</span>  ${Math.round(performance.now() / 1000)}s on this page
-<span class=ok>         </span>  <span class=fg>theme</span>   ${root.dataset.theme || "amber"} / ${getMode()}
-<span class=ok>         </span>  <span class=fg>deps</span>    0`,
-    theme: a => {
-      if (a[0] === "light" || a[0] === "dark") { setMode(a[0]); return `<span class=ok>mode → ${a[0]}</span>`; }
-      if (!THEMES.includes(a[0])) return "usage: theme light|dark|amber|green|cyan";
-      setTheme(a[0]); return `<span class=ok>theme → ${a[0]}</span>`;
-    },
-    light: () => C.theme(["light"]),
-    dark: () => C.theme(["dark"]),
-    matrix: () => {
-      rainBoost = !rainBoost; cv.classList.toggle("boost", rainBoost);
-      return rainBoost ? "<span class=ok>wake up, guest…</span>" : "back to reality";
-    },
-    date: () => new Date().toString(),
-    echo: a => esc(a.join(" ")),
-    sudo: () => `<span class=er>guest is not in the sudoers file. This incident will be reported.</span>`,
-    rm: () => `<span class=er>nice try.</span>`,
-    exit: () => "there is no exit. only scroll.",
-    clear: () => { out.innerHTML = ""; return null; },
-  };
-
-  function run(s) {
-    s = s.trim(); if (!s) return;
-    hist.push(s); hi = hist.length;
-    print(`<span class=ok>$</span> <span class=fg>${esc(s)}</span>`);
-    const [h, ...a] = s.split(/\s+/);
-    const f = Object.prototype.hasOwnProperty.call(C, h.toLowerCase()) ? C[h.toLowerCase()] : null;
-    const r = f ? f(a) : `<span class=er>command not found: ${esc(h)}</span> (try 'help')`;
-    if (r != null) print(r);
-  }
-  cmd.addEventListener("keydown", e => {
-    if (e.key === "Enter") { run(cmd.value); cmd.value = ""; }
-    else if (e.key === "ArrowUp" && hi > 0) { cmd.value = hist[--hi]; e.preventDefault(); }
-    else if (e.key === "ArrowDown") { hi = Math.min(hist.length, hi + 1); cmd.value = hist[hi] || ""; }
-    else if (e.key === "Tab") {
-      const v = cmd.value.trim(); if (!v) return;
-      e.preventDefault();
-      const m = Object.keys(C).filter(k => k.startsWith(v));
-      if (m.length === 1) cmd.value = m[0] + " "; else if (m.length) print(m.join("  "));
-    }
-  });
-  document.querySelectorAll(".chips button").forEach(b =>
-    b.addEventListener("click", () => { run(b.textContent); cmd.focus({ preventScroll: true }); }));
-  document.addEventListener("keydown", e => {
-    const tag = (document.activeElement && document.activeElement.tagName) || "";
-    if (e.key === "/" && tag !== "INPUT" && tag !== "TEXTAREA") { e.preventDefault(); cmd.focus(); }
+  /* spotlight + gentle tilt on cards */
+  const fine = matchMedia('(hover: hover) and (pointer: fine)').matches;
+  document.querySelectorAll('.card').forEach(card => {
+    card.addEventListener('pointermove', e => {
+      const r = card.getBoundingClientRect(), x = e.clientX - r.left, y = e.clientY - r.top;
+      card.style.setProperty('--mx', x+'px'); card.style.setProperty('--my', y+'px');
+      if(fine && !reduce){
+        const rx = ((y / r.height) - .5) * -4, ry = ((x / r.width) - .5) * 5;
+        card.style.transform = `translateY(-8px) scale(1.012) perspective(900px) rotateX(${rx}deg) rotateY(${ry}deg)`;
+      }
+    });
+    card.addEventListener('pointerleave', () => { card.style.transform = ''; });
   });
 
-  /* ---------- katakana / hex rain ---------- */
-  function size() {
-    cv.width = innerWidth; cv.height = innerHeight;
-    cols = Math.ceil(cv.width / FS);
-    drops = Array.from({ length: cols }, () => Math.random() * -60);
+  /* active nav link */
+  const links = [...document.querySelectorAll('.links a')];
+  const secs = links.map(a => document.querySelector(a.getAttribute('href')));
+  function onScroll(){ let k=-1; secs.forEach((s,i)=>{ if(s.getBoundingClientRect().top < innerHeight*.45) k=i; }); links.forEach((a,i)=>a.classList.toggle('on', i===k)); }
+  addEventListener('scroll', onScroll, {passive:true}); onScroll();
+
+  /* starfield */
+  const cv = document.getElementById('stars'), ctx = cv.getContext('2d');
+  let stars = [], raf;
+  function size(){
+    const d = Math.min(devicePixelRatio||1, 2);
+    cv.width = innerWidth*d; cv.height = innerHeight*d; ctx.setTransform(d,0,0,d,0,0);
+    const n = Math.round(innerWidth*innerHeight/5200);
+    stars = Array.from({length:n}, () => ({x:Math.random()*innerWidth, y:Math.random()*innerHeight, r:Math.random()*1.2+.2, t:Math.random()*6.28, s:Math.random()*.02+.004}));
   }
-  function rain() {
-    cx.fillStyle = rainFade; cx.fillRect(0, 0, cv.width, cv.height);
-    cx.font = FS + "px monospace";
-    const flash = getMode() === "light" ? "#2a2118" : "#fff4e0";
-    for (let i = 0; i < cols; i++) {
-      const y = drops[i] * FS;
-      cx.fillStyle = Math.random() < 0.04 ? flash : rainColor;
-      cx.fillText(GLYPHS[Math.random() * GLYPHS.length | 0], i * FS, y);
-      if (y > cv.height && Math.random() > 0.975) drops[i] = 0;
-      drops[i] += rainBoost ? 1 : 0.45;
+  function drawStars(){
+    ctx.clearRect(0,0,innerWidth,innerHeight);
+    const base = dark()? '255,255,255' : '40,40,90', k = dark()? 1 : .35;
+    for(const s of stars){
+      const a = (.35 + .45*Math.sin(s.t)) * k;
+      ctx.fillStyle = `rgba(${base},${a})`; ctx.beginPath(); ctx.arc(s.x,s.y,s.r,0,6.283); ctx.fill();
     }
   }
-  size(); addEventListener("resize", size);
+  function loop(){ for(const s of stars) s.t += s.s; drawStars(); raf = requestAnimationFrame(loop); }
+  size(); paint();
+  if(!reduce) loop();
+  addEventListener('resize', () => { size(); drawStars(); });
+  document.addEventListener('visibilitychange', () => { if(document.hidden) cancelAnimationFrame(raf); else if(!reduce) loop(); });
 
-  /* ---------- start ---------- */
-  setTheme(store.get("theme") || SITE.defaultTheme, false);
-  setMode(getMode(), false);
-  if (!reduce) setInterval(rain, 50);
+  // shared with astronaut.js and blackhole.js
+  window.DS = { root, reduce, dark };
 })();

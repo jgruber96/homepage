@@ -2,129 +2,181 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>darkstarinc — ~/home</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>darkstarinc Eclipse</title>
 <meta name="description" content="Jeff Gruber — builder, tinkerer, photographer. Projects, photos and ways to get in touch.">
-<meta property="og:title" content="Jeff Gruber — ~/home">
-<meta property="og:description" content="Projects, photos and ways to get in touch.">
-<meta name="theme-color" content="#1b1713">
-<!-- Icons. Absolute paths so they also work on the 404 page at any address. -->
-<link rel="icon" href="/favicon.ico" sizes="any">
-<link rel="icon" href="/icon.svg" type="image/svg+xml">
-<link rel="icon" href="/favicon.png" type="image/png" sizes="32x32">
-<link rel="apple-touch-icon" href="/apple-touch-icon.png">
-<link rel="manifest" href="/site.webmanifest">
-<script>/* set light/dark before paint to avoid a flash: saved choice wins, otherwise follow the system setting */
-(function(){let m=null;try{m=localStorage.getItem("mode")}catch(e){}
-  if(!m)m=matchMedia("(prefers-color-scheme: light)").matches?"light":"dark";
-  if(m==="light")document.documentElement.dataset.mode="light"})();</script>
+<meta name="theme-color" content="#0b0d17">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;600;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Exo+2:wght@500;600;700&family=Figtree:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
-<canvas id="rain" aria-hidden="true"></canvas>
-<div id="boot" aria-hidden="true"></div>
 
-<div class="wrap">
-  <header class="bar">
-    <div class="seg"><span><span class="dot"></span><b>jgruber@home</b></span><span id="clock">--:--:--</span></div>
-    <div class="seg">
-      <nav class="seg"><a href="#projects">projects</a><a href="#about">about</a><a href="#shell">shell</a><a href="#contact">contact</a></nav>
-      <button id="mode" type="button" aria-label="Toggle light and dark theme"><span class="d">dark</span><span class="l">light</span></button>
+<div class="sky" aria-hidden="true"><canvas id="stars"></canvas></div>
+<div class="drifter">
+  <canvas id="tether" aria-hidden="true"></canvas>
+  <div id="astro" role="button" tabindex="0" aria-label="Floating astronaut. Activate to hear what he says.">
+  <svg viewBox="0 0 100 120" aria-hidden="true">
+    <defs>
+      <radialGradient id="gs" cx=".35" cy=".3" r=".95"><stop offset="0" stop-color="#fff"/><stop offset=".5" stop-color="#ece6dc"/><stop offset="1" stop-color="#a99d8c"/></radialGradient>
+      <linearGradient id="gl" x1="0" x2="1"><stop offset="0" stop-color="#faf7f2"/><stop offset=".65" stop-color="#d3cabd"/><stop offset="1" stop-color="#968a79"/></linearGradient>
+      <linearGradient id="gp" x1="0" x2="1"><stop offset="0" stop-color="#e9e3d9"/><stop offset="1" stop-color="#9c907f"/></linearGradient>
+      <radialGradient id="gv" cx=".33" cy=".28" r=".9"><stop offset="0" stop-color="#ffd88a"/><stop offset=".3" stop-color="#d98a1e"/><stop offset=".7" stop-color="#4d2c06"/><stop offset="1" stop-color="#150b02"/></radialGradient>
+    </defs>
+    <!-- life-support backpack -->
+    <rect x="7" y="40" width="26" height="48" rx="7" fill="url(#gp)" stroke="#857a6a" stroke-width=".8"/>
+    <rect x="11" y="45" width="18" height="10" rx="2" fill="#bdb3a4"/>
+    <path d="M11 62h18M11 66h18M11 70h18" stroke="#857a6a" stroke-width="1"/>
+    <rect x="12" y="76" width="6" height="6" rx="1.5" fill="#ffb454"/>
+    <path d="M20 40v-7" stroke="#928675" stroke-width="1.5"/><circle cx="20" cy="32" r="1.6" fill="#ff6b6b"/>
+    <!-- hoses -->
+    <path d="M36 66c-8 2-6 10-12 8" fill="none" stroke="#6b604f" stroke-width="3" stroke-linecap="round"/>
+    <path d="M36 72c-6 3-5 9-11 8" fill="none" stroke="#968a78" stroke-width="2.4" stroke-linecap="round"/>
+    <!-- legs -->
+    <rect x="34" y="82" width="15" height="28" rx="7.5" fill="url(#gl)" transform="rotate(8 41 82)"/>
+    <rect x="50" y="82" width="15" height="28" rx="7.5" fill="url(#gl)" transform="rotate(-14 57 82)"/>
+    <rect x="34" y="94" width="15" height="4" rx="2" fill="#b5ab9c" transform="rotate(8 41 96)"/>
+    <rect x="50" y="94" width="15" height="4" rx="2" fill="#b5ab9c" transform="rotate(-14 57 96)"/>
+    <path d="M33 106c0-3 3-4 8-4h9c1 3 1 8-1 10H35c-2 0-2-3-2-6z" fill="#6f6556" stroke="#3d3529" stroke-width="1" transform="rotate(8 41 108)"/>
+    <path d="M49 106c0-3 3-4 8-4h9c1 3 1 8-1 10H51c-2 0-2-3-2-6z" fill="#6f6556" stroke="#3d3529" stroke-width="1" transform="rotate(-14 57 108)"/>
+    <!-- torso -->
+    <rect x="28" y="46" width="44" height="46" rx="15" fill="url(#gs)" stroke="#a99d8c" stroke-width=".8"/>
+    <rect x="30" y="85" width="40" height="7" rx="3.5" fill="#c9c0b2"/>
+    <!-- chest panel: a tiny terminal -->
+    <rect x="37" y="59" width="26" height="16" rx="3" fill="#1b1713" stroke="#3a3128" stroke-width="1"/>
+    <path d="M40 63l3 2-3 2" fill="none" stroke="#ffb454" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
+    <rect x="45" y="66" width="5" height="1.6" fill="#ffb454"/>
+    <circle cx="55" cy="64" r="1.5" fill="#ff6b6b"/><circle cx="59" cy="64" r="1.5" fill="#7ee0a1"/>
+    <rect x="40" y="70" width="20" height="2" rx="1" fill="#6b5d4c"/>
+    <!-- arms -->
+    <g transform="rotate(-32 68 52)"><rect x="62" y="48" width="13" height="33" rx="6.5" fill="url(#gl)"/><rect x="62" y="62" width="13" height="4" rx="2" fill="#b5ab9c"/></g>
+    <g transform="rotate(24 28 54)"><rect x="21" y="50" width="13" height="31" rx="6.5" fill="url(#gl)"/><rect x="21" y="63" width="13" height="4" rx="2" fill="#b5ab9c"/></g>
+    <circle cx="82" cy="77" r="6.5" fill="#ddd5c8" stroke="#6f6556" stroke-width="1"/><path d="M79 81l-2 4M82 82v5M85 81l2 4" stroke="#6f6556" stroke-width="2" stroke-linecap="round"/>
+    <circle cx="19" cy="81" r="6.5" fill="#ddd5c8" stroke="#6f6556" stroke-width="1"/><path d="M16 85l-2 4M19 86v5M22 85l2 4" stroke="#6f6556" stroke-width="2" stroke-linecap="round"/>
+    <!-- helmet -->
+    <ellipse cx="50" cy="52" rx="19" ry="5.5" fill="#b8ae9f"/>
+    <circle cx="50" cy="30" r="26" fill="url(#gs)" stroke="#a99d8c" stroke-width=".8"/>
+    <rect x="22" y="22" width="6" height="9" rx="2.5" fill="#4a4136"/><circle cx="25" cy="26" r="1.6" fill="#ffe2a8"/>
+    <ellipse cx="54" cy="31" rx="18" ry="16" fill="url(#gv)" stroke="#ebe4d8" stroke-width="1.6"/>
+    <ellipse cx="47" cy="23" rx="8" ry="4" fill="#fff" opacity=".5" transform="rotate(-24 47 23)"/>
+    <path d="M44 40c6 5 16 4 22-3-1 7-9 12-17 10-3-1-5-4-5-7z" fill="#ffb454" opacity=".28"/>
+    <circle cx="63" cy="22" r="1.6" fill="#fff" opacity=".8"/>
+  </svg>
+  </div>
+</div>
+<div class="bubble" id="bubble" aria-live="polite"></div>
+
+<header class="nav">
+  <div class="wrap">
+    <div class="nav-in">
+      <a class="brand" href="#top"><i class="brand-dot" aria-hidden="true"></i><span>darkstar</span></a>
+      <nav class="links" aria-label="Sections">
+        <a href="#work">Work</a><a href="#about">About</a><a href="#contact">Contact</a>
+      </nav>
+      <button class="mode" id="mode" type="button" aria-label="Switch to light mode">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path id="modeIcon" d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+      </button>
     </div>
-  </header>
+  </div>
+</header>
 
-  <section class="hero">
-    <div>
-      <div class="greet"><span class="k">$</span> whoami</div>
-      <h1><span class="glitch" data-t="jeff">jeff</span><span class="u">_</span></h1>
-      <!-- EDIT: your one-line intro -->
-      <p class="lede">I build <span>small, useful things</span> for the web, self-host more than I should, and take a lot of photos.</p>
-      <div class="cta">
-        <a class="btn p" href="#projects">ls ./projects →</a>
-        <a class="btn" href="https://github.com/jgruber96" target="_blank" rel="noopener">github ↗</a>
-        <a class="btn" href="https://www.flickr.com/photos/jgruber15/" target="_blank" rel="noopener">flickr ↗</a>
+<main id="top">
+  <div class="wrap hero">
+    <div class="hero-grid">
+      <div class="hero-copy">
+        <p class="eyebrow rise"><i class="live" aria-hidden="true"></i><span id="clock">Pacific Time</span></p>
+        <h1 class="rise d1">Hi, I'm Jeff. I build <span class="lit">small, useful</span> things.</h1>
+        <p class="lede rise d2">Web apps, an iPhone app, and a home server I probably <b>self-host too much on</b>. When I'm not coding, I'm taking photos.</p>
+        <div class="cta rise d3">
+          <a class="btn pri" href="#work">See my work
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12l7 7 7-7"/></svg></a>
+          <a class="btn" href="https://github.com/jgruber96" target="_blank" rel="noopener">
+            <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 .5a11.5 11.5 0 0 0-3.64 22.41c.58.1.79-.25.79-.56v-2c-3.2.7-3.88-1.37-3.88-1.37-.52-1.33-1.28-1.69-1.28-1.69-1.05-.72.08-.7.08-.7 1.16.08 1.77 1.19 1.77 1.19 1.03 1.77 2.7 1.26 3.36.96.1-.75.4-1.26.73-1.55-2.55-.29-5.24-1.28-5.24-5.69 0-1.26.45-2.29 1.19-3.09-.12-.29-.52-1.46.11-3.05 0 0 .97-.31 3.17 1.18a11 11 0 0 1 5.77 0c2.2-1.49 3.17-1.18 3.17-1.18.63 1.59.23 2.76.11 3.05.74.8 1.19 1.83 1.19 3.09 0 4.42-2.7 5.39-5.26 5.68.41.36.78 1.06.78 2.14v3.17c0 .31.21.67.8.56A11.5 11.5 0 0 0 12 .5z"/></svg>
+            GitHub</a>
+        </div>
+        <div class="stats rise d4">
+          <div class="stat"><b>4</b>projects shipped</div>
+          <div class="stat"><b>0</b>trackers on this page</div>
+          <div class="stat" style="min-width:150px"><b id="yrpct">0%</b>of <span id="yrn">2026</span> done<span class="yr"><i id="yrbar"></i></span></div>
+        </div>
+      </div>
+      <div class="eclipse-wrap rise d2" aria-hidden="true">
+        <canvas id="bh"></canvas>
+        <div class="eclipse"><div class="ring"></div><div class="disc"></div></div>
       </div>
     </div>
-    <div class="sys" aria-label="quick stats">
-      <div><span>lines of code</span><i id="loc">0</i></div><div class="meter" id="locm" style="--w:0%"></div>
-      <div><span>something random</span><i id="rnd">—</i></div><div class="meter" id="rndm" style="--w:50%"></div>
-      <div><span>bugs</span><i>0 (allegedly)</i></div><div class="meter" style="--w:4%"></div>
-      <div><span>year.progress</span><i id="yearp">—</i></div><div class="meter" id="ym"></div>
-      <div><span>local time</span><i id="tz">US/Pacific</i></div>
-    </div>
-  </section>
-
-  <div class="term" id="shell">
-    <div class="term-h"><span class="l"></span><span class="l"></span><span class="l"></span><span style="margin-left:8px">guest@jgruber: ~</span><span class="t">type <b>help</b></span></div>
-    <div id="out"><span class="fg">Welcome, guest.</span> Type <span class="ok">help</span> to look around, or click a command below.
-</div>
-    <div class="line">
-      <label class="ps1" for="cmd"><span class="u">guest@jgruber</span><span class="p">:~</span>$</label>
-      <input id="cmd" autocomplete="off" spellcheck="false" placeholder="help">
-    </div>
-    <div class="chips"><button>help</button><button>about</button><button>projects</button><button>contact</button><button>neofetch</button><button>sudo</button></div>
   </div>
 
-  <div class="sh" id="projects"><h2><span class="k">$</span>ls ~/projects</h2><p>// things I've shipped</p></div>
-  <section class="grid">
-    <a class="dir" data-link="choreCalendar" href="https://github.com/jgruber96/chore-calendar" target="_blank" rel="noopener">
-      <div class="path"><span><i class="perm">drwxr-xr-x </i>~/projects/<b>chore-calendar</b></span><span>repo</span></div>
-      <h3>chore-calendar web app</h3>
-      <p>A self-hosted calendar for household chores: who's doing what, and when. Runs on my home server.</p>
-      <div class="meta"><span class="tag">web app</span><span class="tag">self-hosted</span><span class="go">→</span></div>
-    </a>
-    <!-- App Store link comes from config.js (links.iosApp) -->
-    <a class="dir" data-link="iosApp" href="https://apps.apple.com/" target="_blank" rel="noopener">
-      <div class="path"><span><i class="perm">drwxr-xr-x </i>~/projects/<b>chore-calendar-ios</b></span><span>app store</span></div>
-      <h3>chore-calendar ios app</h3>
-      <p>The native iPhone and iPad version. Works offline and syncs between family devices over iCloud.</p>
-      <div class="meta"><span class="tag">ios app</span><span class="tag">swift</span><span class="tag">icloud</span><span class="go">→</span></div>
-    </a>
-    <a class="dir" href="https://www.flickr.com/photos/jgruber15/" target="_blank" rel="noopener">
-      <div class="path"><span><i class="perm">drwxr-xr-x </i>~/projects/<b>photos</b></span><span>flickr</span></div>
-      <h3>photo log</h3>
-      <p>My most viewed and most liked shots. Mostly whatever caught my eye that day.</p>
-      <div class="meta"><span class="tag">photography</span><span class="go">→</span></div>
-    </a>
-    <a class="dir" href="#shell">
-      <div class="path"><span><i class="perm">-rwxr-xr-x </i>~/projects/<b>homepage</b></span><span>you are here</span></div>
-      <h3>this site</h3>
-      <p>Hand-written HTML, CSS and JS. No framework, no tracking. Go break the shell above.</p>
-      <div class="meta"><span class="tag">html</span><span class="tag">css</span><span class="tag">vanilla js</span><span class="go">→</span></div>
-    </a>
+  <section id="work">
+    <div class="wrap">
+      <p class="kicker">Selected work</p>
+      <h2>Things I've shipped</h2>
+      <p class="sub">Small tools that started as fixes for my own house and turned out to be useful.</p>
+
+      <!-- Project cards are built from projects.js. Edit that file to add or change projects. -->
+      <div class="bento" id="projects-grid"></div>
+      <noscript><p class="noscript-note">Turn on JavaScript to see the project cards, or browse them on <a href="https://github.com/jgruber96">GitHub</a>.</p></noscript>
+    </div>
   </section>
 
-  <section class="row2">
-    <div class="panel" id="about">
-      <h3>~/about.md <span>· cat</span></h3>
-      <!-- EDIT: your bio -->
-      <p>Hey, I'm <b>jeff</b>. I like turning everyday annoyances into tiny tools: a self-hosted calendar for household chores, a page for my favourite photos, and this site.</p>
-      <p>When I'm not in a terminal I'm usually behind a camera.</p>
-      <dl class="kv">
-        <div><dt>role</dt><dd>builder · tinkerer</dd></div>
-        <div><dt>stack</dt><dd>html/css · javascript · self-hosting · git</dd></div>
-        <div><dt>offline</dt><dd>photography</dd></div>
-        <div><dt>status</dt><dd style="color:var(--acc2)">● building things</dd></div>
-      </dl>
-    </div>
-    <div class="panel" id="contact">
-      <h3>~/contact <span>· ping jgruber</span></h3>
-      <div class="links">
-        <a href="https://github.com/jgruber96" target="_blank" rel="noopener"><span class="ic">gh</span>github<small>@jgruber96 ↗</small></a>
-        <a href="https://www.flickr.com/photos/jgruber15/" target="_blank" rel="noopener"><span class="ic">fl</span>flickr<small>@jgruber15 ↗</small></a>
-        <!-- EDIT: add email / socials, e.g.
-        <a href="mailto:you@example.com"><span class="ic">@</span>email<small>you@example.com</small></a> -->
+  <section id="about">
+    <div class="wrap">
+      <p class="kicker">About</p>
+      <h2>The person behind the projects</h2>
+      <div class="about" style="margin-top:36px">
+        <div class="card h-orange">
+          <span class="shine"></span>
+          <p>Hey, I'm Jeff. I like turning <span class="hl">everyday annoyances into tiny tools</span>: a self-hosted calendar for household chores, a page for my favourite photos, and this site.</p>
+          <p class="dim">When I'm not in a terminal, I'm usually behind a camera.</p>
+        </div>
+        <div class="card h-ice">
+          <span class="shine"></span>
+          <dl class="facts">
+            <div><dt>Role</dt><dd>Builder, tinkerer</dd></div>
+            <div><dt>Stack</dt><dd>HTML, CSS, JavaScript, Swift, Git</dd></div>
+            <div><dt>Runs on</dt><dd>A home server</dd></div>
+            <div><dt>Offline</dt><dd>Photography</dd></div>
+            <div><dt>Status</dt><dd><span class="pulse" aria-hidden="true"></span>Building things</dd></div>
+          </dl>
+        </div>
       </div>
     </div>
   </section>
 
-  <footer><span>© <span id="yr"></span> jgruber · built by hand · <b>theme</b> light|dark|amber|green|cyan</span><span>exit 0 <span class="cursor"></span></span></footer>
-</div>
+  <section id="contact">
+    <div class="wrap">
+      <p class="kicker">Contact</p>
+      <h2>Say hello</h2>
+      <p class="sub">The fastest way to reach me is on GitHub. Photos live on Flickr.</p>
+      <div class="contact">
+        <a class="card h-orange" href="https://github.com/jgruber96" target="_blank" rel="noopener">
+          <span class="shine"></span>
+          <span class="icon"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 .5a11.5 11.5 0 0 0-3.64 22.41c.58.1.79-.25.79-.56v-2c-3.2.7-3.88-1.37-3.88-1.37-.52-1.33-1.28-1.69-1.28-1.69-1.05-.72.08-.7.08-.7 1.16.08 1.77 1.19 1.77 1.19 1.03 1.77 2.7 1.26 3.36.96.1-.75.4-1.26.73-1.55-2.55-.29-5.24-1.28-5.24-5.69 0-1.26.45-2.29 1.19-3.09-.12-.29-.52-1.46.11-3.05 0 0 .97-.31 3.17 1.18a11 11 0 0 1 5.77 0c2.2-1.49 3.17-1.18 3.17-1.18.63 1.59.23 2.76.11 3.05.74.8 1.19 1.83 1.19 3.09 0 4.42-2.7 5.39-5.26 5.68.41.36.78 1.06.78 2.14v3.17c0 .31.21.67.8.56A11.5 11.5 0 0 0 12 .5z"/></svg></span>
+          <span><small>GitHub</small><strong>@jgruber96</strong></span>
+          <span class="arrow" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M7 17 17 7M8 7h9v9"/></svg></span>
+        </a>
+        <a class="card h-rose" href="https://www.flickr.com/photos/jgruber15/" target="_blank" rel="noopener">
+          <span class="shine"></span>
+          <span class="icon"><svg viewBox="0 0 24 24" fill="currentColor"><circle cx="7" cy="12" r="4"/><circle cx="17" cy="12" r="4" opacity=".55"/></svg></span>
+          <span><small>Flickr</small><strong>@jgruber15</strong></span>
+          <span class="arrow" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M7 17 17 7M8 7h9v9"/></svg></span>
+        </a>
+      </div>
+    </div>
+  </section>
+</main>
 
-<script src="config.js"></script>
+<footer>
+  <div class="wrap">
+    <span>© <span id="yr">2026</span> darkstarinc</span>
+    <span>Built by hand. No framework, no tracking.</span>
+  </div>
+</footer>
+
+<script src="projects.js"></script>
 <script src="main.js"></script>
+<script src="astronaut.js"></script>
+<script src="blackhole.js"></script>
 </body>
 </html>
