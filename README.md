@@ -1,16 +1,19 @@
 # homepage
 
-Personal homepage: hacker-style terminal look, amber theme, light/dark that follows the visitor's system setting.
+Personal homepage: ray-traced black hole hero, glowing project cards, and a drifting astronaut. Light/dark follows the visitor's system setting (with a toggle).
 
 ## Files
 
 | File | What it is |
 |---|---|
-| `index.html` | Page content (intro, bio, project cards, contact) |
-| `style.css` | All styling; colour tokens at the top |
-| `main.js` | Shell, matrix rain, light/dark toggle, clock, stats |
-| `favicon.ico`, `favicon.png`, `icon.svg`, `apple-touch-icon.png`, `icon-192.png`, `icon-512.png`, `site.webmanifest` | Site icon (amber `>_` prompt) for tabs, bookmarks and phone home screens |
-| `config.js` | **Your settings** — handle, links, lines of code, random list, timing |
+| `index.html` | Page content: intro, about, contact (plain HTML) |
+| `projects.js` | **The project cards.** A commented list; add, remove or reorder projects here |
+| `astronaut.js` | The floating astronaut. **His speech lines are at the top** |
+| `blackhole.js` | The WebGL black hole in the hero |
+| `main.js` | Theme toggle, clock, builds the project cards, card glow, nav highlight, starfield |
+| `style.css` | All styling; colour and font variables at the top |
+| `favicon.ico`, `favicon.png`, `icon.svg`, `apple-touch-icon.png`, `icon-192.png`, `icon-512.png`, `site.webmanifest` | Site icon for tabs, bookmarks and phone home screens |
+| `config.js` | Settings for the old terminal design; no longer used by `index.html` |
 
 Not part of the live site (don't upload these when publishing):
 
@@ -25,10 +28,6 @@ Open `index.html` in a browser, or serve the folder:
 ```sh
 python -m http.server 8000   # then visit http://localhost:8000
 ```
-
-## Shell commands
-
-`help` · `about` · `projects` · `contact` · `neofetch` · `theme light|dark|amber|green|cyan` · `matrix` · `ls` · `cat` · `clear`
 
 ## 404 page
 
