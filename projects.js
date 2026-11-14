@@ -49,7 +49,7 @@ window.PROJECTS = [
     icon: "camera",
     color: "rose",
     size: "small",
-    extra: "photos",
+    extra: "",
     tags: []
   },
 
