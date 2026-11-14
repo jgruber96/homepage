@@ -78,6 +78,23 @@
       } else if(p.extra === 'photos'){
         const f = el('div', 'film'); f.setAttribute('aria-hidden', 'true');
         for(let i = 0; i < 3; i++) f.appendChild(el('i')); a.appendChild(f);
+      } else if(p.extra === 'editor'){
+        // a little split-view Markdown editor: source on the left, rendered page on the right
+        const ed = el('div', 'editor'); ed.setAttribute('aria-hidden', 'true');
+        const bar = el('div', 'ed-bar'); for(let i = 0; i < 3; i++) bar.appendChild(el('i'));
+        bar.appendChild(el('span', null, 'notes.md')); ed.appendChild(bar);
+        const panes = el('div', 'ed-panes');
+        const src = el('div', 'ed-src');
+        [['h', '# Weekend'], ['', 'Fix the **gate**'], ['', '- [x] groceries'], ['', '- [ ] hike'], ['q', '> rain on Sun'], ['c', '`$ git push`']]
+          .forEach(([c, t]) => src.appendChild(el('p', c || null, t)));
+        const out = el('div', 'ed-out');
+        out.appendChild(el('p', 'h', 'Weekend'));
+        const p1 = el('p'); p1.append('Fix the '); p1.appendChild(el('b', null, 'gate')); out.appendChild(p1);
+        out.appendChild(el('p', 'chk on', 'groceries'));
+        out.appendChild(el('p', 'chk', 'hike'));
+        out.appendChild(el('p', 'q', 'rain on Sun'));
+        out.appendChild(el('p', 'c', '$ git push'));
+        panes.append(src, out); ed.appendChild(panes); a.appendChild(ed);
       }
       if(Array.isArray(p.tags) && p.tags.length){
         const t = el('div', 'tags'); p.tags.forEach(x => t.appendChild(el('span', null, x))); a.appendChild(t);

@@ -259,6 +259,26 @@ h2{font:700 clamp(2rem, 4vw, 2.9rem)/1.05 var(--display); letter-spacing:-.02em;
 .mini i.today{box-shadow:0 0 0 2px var(--text)}
 
 /* photo strip in the photos card */
+/* split-view editor picture in the Marklet card */
+.editor{margin-top:24px; border-radius:14px; border:1px solid var(--edge); background:color-mix(in srgb,var(--night) 55%,transparent); overflow:hidden}
+.ed-bar{display:flex; align-items:center; gap:6px; padding:9px 12px; border-bottom:1px solid var(--edge); font:500 .68rem/1 var(--mono); color:var(--faint)}
+.ed-bar i{width:8px; height:8px; border-radius:50%; background:var(--edge)}
+.ed-bar i:first-child{background:color-mix(in srgb,var(--hue-a) 70%,transparent)}
+.ed-bar span{margin-left:6px}
+.ed-panes{display:grid; grid-template-columns:1fr 1fr}
+.ed-src,.ed-out{padding:12px; min-width:0}
+.ed-src{border-right:1px solid var(--edge); font:400 .68rem/1.9 var(--mono); color:var(--muted)}
+.ed-out{font:400 .78rem/1.65 var(--body); color:var(--text)}
+.card .editor p{margin:0; max-width:none; color:inherit; white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+.ed-src .h{color:var(--hue-a)}
+.ed-src .q{color:var(--faint)}
+.ed-src .c{color:color-mix(in srgb,var(--hue-a) 70%,var(--muted))}
+.ed-out .h{font:700 1rem/1.5 var(--display)}
+.ed-out b{color:var(--hue-a)}
+.ed-out .chk::before{content:""; display:inline-block; width:9px; height:9px; margin-right:6px; border-radius:3px; border:1px solid var(--muted); vertical-align:-1px}
+.ed-out .chk.on::before{background:var(--hue-a); border-color:var(--hue-a)}
+.ed-out .q{border-left:2px solid color-mix(in srgb,var(--hue-a) 55%,transparent); padding-left:7px; color:var(--muted); font-style:italic}
+.ed-out .c{font:400 .7rem/1.9 var(--mono); color:var(--muted)}
 .film{display:grid; grid-template-columns:repeat(3,1fr); gap:8px; margin-top:20px}
 .film i{aspect-ratio:4/5; border-radius:10px; border:1px solid var(--edge)}
 .film i:nth-child(1){background:linear-gradient(160deg,#ffb36b,#ff4d8d 70%,#2a1640)}

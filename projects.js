@@ -18,38 +18,38 @@
 window.PROJECTS = [
 
   {
-    title: "Chore Calendar",                              // card heading
-    description: "A self-hosted calendar for household chores: who's doing what, and when. Runs on my home server.",
-    link: "https://github.com/jgruber96/chore-calendar",  // where the card goes when clicked
-    badge: "Web app · self-hosted · retired",                     // small label in the top-right corner
-    icon: "calendar",   // calendar | phone | camera | code | globe | server | terminal | edit | star
+    title: "StarChores",                                  // card heading
+    description: "An iPhone and iPad app where parents and kids share one chore list. Finished chores earn rewards, so everyone stays motivated. Built completely in SwiftUI, based on my Chore Calendar web app.",
+    link: "https://darkstardev.us/starchores/",           // where the card goes when clicked
+    badge: "iOS · App Store",                             // small label in the top-right corner
+    icon: "star",       // calendar | phone | camera | code | globe | server | terminal | edit | star
     color: "orange",    // glow color: orange | rose | ice | green
     size: "wide",       // wide = 2/3 width | tall = 1/3 width, double height | small = 1/3 width
-    extra: "calendar",  // optional picture in the card: "calendar" | "photos" | "" for none
-    tags: []            // little labels at the bottom, e.g. ["Swift", "iCloud"]; [] for none
+    extra: "calendar",  // optional picture in the card: "calendar" | "photos" | "editor" | "" for none
+    tags: ["SwiftUI", "iOS"]  // little labels at the bottom, e.g. ["Swift", "iCloud"]; [] for none
   },
 
   {
-    title: "Chore Calendar for iPhone",
-    description: "The native iPhone and iPad version. Works offline and syncs between family devices over iCloud.",
-    link: "https://apps.apple.com/",                      // TODO: replace with the real App Store link
-    badge: "iOS · App Store",
-    icon: "phone",
+    title: "Marklet",
+    description: "A Markdown editor that stays out of your way. Write with the symbols showing, beside the rendered page, or right on it. Notes stay plain text files in a folder you choose. Free, no account. Coming to iPhone and iPad.",
+    link: "https://darkstardev.us/marklet/",
+    badge: "Windows · Mac",
+    icon: "edit",
     color: "ice",
     size: "tall",
-    extra: "",
-    tags: ["Swift", "iCloud", "iPadOS"]
+    extra: "editor",
+    tags: ["Tauri", "Rust", "React", "TypeScript"]
   },
 
   {
     title: "Photos",
-    description: "My most viewed and most liked shots.",
-    link: "https://www.flickr.com/photos/jgruber15/",
-    badge: "Flickr",
+    description: "My photo portfolio, with my favorite shots, at jeffgruber.us.",
+    link: "https://jeffgruber.us",
+    badge: "jeffgruber.us",
     icon: "camera",
     color: "rose",
     size: "small",
-    extra: "photos",
+    extra: "",
     tags: []
   },
 
