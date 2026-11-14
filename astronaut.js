@@ -12,7 +12,7 @@ const SPEECH = {
       "On the bright side, great views.",
       "Is it warm behind that black hole?",
       "Tried turning the rocket off and on.",
-      "Have you seen the chore calendar?",
+      "Have you seen StarChores?",
       "Houston, the homepage is up.",
       "Anyone got a spare link?",
       "Just orbiting. Don't mind me.",
