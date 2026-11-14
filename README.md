@@ -13,13 +13,8 @@ Personal homepage: ray-traced black hole hero, glowing project cards, and a drif
 | `main.js` | Theme toggle, clock, builds the project cards, card glow, nav highlight, starfield |
 | `style.css` | All styling; colour and font variables at the top |
 | `favicon.ico`, `favicon.png`, `icon.svg`, `apple-touch-icon.png`, `icon-192.png`, `icon-512.png`, `site.webmanifest` | Site icon for tabs, bookmarks and phone home screens |
-| `config.js` | Settings for the old terminal design; no longer used by `index.html` |
 
-Not part of the live site (don't upload these when publishing):
-
-- `startpage.html` — the original private browser start page
-- `index-light.html` — the earlier light-only design
-- `backup/index-single-file.html` — the site as one file, before the split
+The previous terminal-style design is in the git history (commit `528300e`, before the redesign merged).
 
 ## Run locally
 

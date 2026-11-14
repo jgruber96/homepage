@@ -1,3 +1,6 @@
 Thumbs.db
 .DS_Store
 desktop.ini
+
+# local archive of the pre-redesign site (has its own .git); never commit it
+old site/
